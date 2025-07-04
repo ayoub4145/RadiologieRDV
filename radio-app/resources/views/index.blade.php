@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <style>
+        B{
+            color: red;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <h1>Prenez votre rendez-vous rapidement!</h1>
+    <h2>Cr&eacute;ez votre compte <a href="{{route('register')}}"><B>ICI</B></a></h2>
 </body>
 </html>
