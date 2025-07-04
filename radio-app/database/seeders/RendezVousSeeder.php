@@ -13,6 +13,6 @@ class RendezVousSeeder extends Seeder
      */
     public function run(): void
     {
-        RendezVous::factory(20)->create();
+        RendezVous::factory(5)->create();
     }
 }
