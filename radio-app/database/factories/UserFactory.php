@@ -24,12 +24,14 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+            $role = Role::inRandomOrder()->first() ?? Role::factory()->create();
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role_id' => Role::inRandomOrder()->first()->id, // Assure que role_id est défini
+            'role_id' =>$role->id, 
 
         ];
     }

@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
                 UserSeeder::class,
                 ServiceSeeder::class,
                 RendezVousSeeder::class,
+                ServiceAvailabilitySeeder::class,
                 NotificationSeeder::class,
                 FeedbackSeeder::class,
     ]);

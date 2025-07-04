@@ -13,6 +13,11 @@ class Service extends Model
     {
         return $this->hasMany(RendezVous::class);
     }
+    public function availabilities()
+    {
+        return $this->hasMany(ServiceAvailability::class);
+    }
+
     /** @use HasFactory<\Database\Factories\ServiceFactory> */
     use HasFactory;
 }
