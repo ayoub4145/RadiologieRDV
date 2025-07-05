@@ -4,13 +4,14 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RendezVousController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\DashboardController;
 Route::get('/', function () {
     return view('index');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [RendezVousController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::post('/prendre-rdv', [RendezVousController::class, 'store'])->name('rendezvous.store');

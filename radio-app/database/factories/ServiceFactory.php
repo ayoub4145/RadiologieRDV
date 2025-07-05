@@ -17,7 +17,7 @@ class ServiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'service_name' => $this->faker->randomElement(['IRM', 'Scanner', 'Échographie', 'Radiographie']),
+            'service_name' => $this->faker->unique()->randomElement(['IRM', 'Scanner', 'Échographie', 'Radiographie']),
             'duree' => $this->faker->randomElement([30, 45, 60]),
             'description' => $this->faker->sentence(),
             'tarif' => $this->faker->randomFloat(2, 400, 1000),
