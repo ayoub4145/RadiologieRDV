@@ -1,3 +1,25 @@
+<style>
+#creneaux-pagination button {
+    border: none;
+    outline: none;
+    margin: 0 2px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: #e5e7eb;
+    color: #374151;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+#creneaux-pagination button.bg-blue-500 {
+    background: #2563eb;
+    color: #fff;
+}
+#creneaux-pagination button:hover:not(.bg-blue-500) {
+    background: #cbd5e1;
+    color: #1e293b;
+}
+</style>
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -49,20 +71,27 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        <input type="hidden" name="date_heure" id="date_heure" required>
 
-                        <!-- Date et Heure -->
-                        <div class="mb-4">
-                            <label for="date_heure" class="block font-medium text-sm text-gray-700 dark:text-gray-200">
-                                Date et Heure
-                            </label>
-                            <input type="datetime-local" name="date_heure" id="date_heure"
-                                   value="{{ old('date_heure') }}"
-                                   class="mt-1 block w-full rounded-md shadow-sm" required>
-                            @error('date_heure')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                        <!-- Créneaux dynamiques -->
+                        <div id="creneaux-container" class="mt-6 hidden">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Créneaux disponibles :</h3>
+                            <table class="min-w-full divide-y divide-gray-200 border">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2">Date</th>
+                                        <th class="px-4 py-2">Heure début</th>
+                                        <th class="px-4 py-2">Heure fin</th>
+                                        <th class="px-4 py-2 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="creneaux-list">
+                                    <!-- AJAX remplira ici -->
+                                </tbody>
+                            </table>
+                        <div id="creneaux-pagination" class="mt-2 flex justify-center"></div>
+
                         </div>
-
                         <!-- Urgent -->
                         <div class="mb-4 flex items-center">
                             <input type="checkbox" style="color: red" name="is_urgent" id="is_urgent" class="mr-2"
@@ -92,12 +121,11 @@
 
                         <!-- Submit -->
                         <div class="flex justify-end">
-                            <button type="submit" style="color: green"
+                            <button type="submit" style="color: green" name="action" value="prendre"
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                                 Prendre rendez-vous
                             </button>
                         </div>
-
                     </form>
                 @else
                     <div class="text-red-600 font-bold">
@@ -107,4 +135,114 @@
             </div>
         </div>
     </div>
+
+{{-- Ajout de la pagination côté client pour les créneaux --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const serviceSelect = document.getElementById('service_id');
+    const urgentCheckbox = document.getElementById('is_urgent');
+    const creneauxContainer = document.getElementById('creneaux-container');
+    const creneauxList = document.getElementById('creneaux-list');
+    const itemsPerPage = 5;
+    let creneauxData = [];
+    let currentPage = 1;
+
+    serviceSelect.addEventListener('change', fetchCreneaux);
+    if (urgentCheckbox) {
+        urgentCheckbox.addEventListener('change', fetchCreneaux);
+    }
+
+    function renderPagination(totalPages) {
+        let paginationHtml = '';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `<button type="button" class="mx-1 px-2 py-1 rounded ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200'}" onclick="changePage(${i})">${i}</button>`;
+        }
+        document.getElementById('creneaux-pagination').innerHTML = paginationHtml;
+    }
+
+    window.changePage = function(page) {
+        currentPage = page;
+        renderCreneaux();
+    }
+
+    function renderCreneaux() {
+        creneauxList.innerHTML = '';
+        if (creneauxData.length === 0) {
+            creneauxList.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-red-500">Aucun créneau disponible.</td>
+                </tr>`;
+            document.getElementById('creneaux-pagination').innerHTML = '';
+            return;
+        }
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageData = creneauxData.slice(start, end);
+
+        pageData.forEach(c => {
+            const dateStr = c.date;
+            const startTime = c.time.substring(0, 5);
+            const endTime = c.end_time ? c.end_time.substring(0,5) : '-';
+            creneauxList.innerHTML += `
+                <tr>
+                    <td class="px-4 py-2">${new Date(dateStr).toLocaleDateString()}</td>
+                    <td class="px-4 py-2">${startTime}</td>
+                    <td class="px-4 py-2">${endTime}</td>
+                    <td class="px-4 py-2 text-center">
+                        <button type="button"
+                            style="color: green"
+                            class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
+                            onclick="remplirDateHeure('${dateStr}', '${startTime}')">
+                            Choisir
+                        </button>
+                    </td>
+                </tr>`;
+        });
+
+        const totalPages = Math.ceil(creneauxData.length / itemsPerPage);
+        renderPagination(totalPages);
+    }
+
+    function fetchCreneaux() {
+        const serviceId = serviceSelect.value;
+        const isUrgent = urgentCheckbox && urgentCheckbox.checked ? 1 : 0;
+        currentPage = 1;
+
+        if (!serviceId) {
+            creneauxContainer.classList.add('hidden');
+            creneauxList.innerHTML = '';
+            document.getElementById('creneaux-pagination').innerHTML = '';
+            return;
+        }
+
+        fetch(`/api/creneaux/${serviceId}?urgent=${isUrgent}`)
+            .then(response => response.json())
+            .then(data => {
+                creneauxData = data;
+                renderCreneaux();
+                creneauxContainer.classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error("Erreur lors de la récupération des créneaux :", error);
+            });
+    }
+
+    window.remplirDateHeure = function (date, time) {
+        document.getElementById('date_heure').value = `${date}T${time}`;
+    };
+
+    // Ajout du conteneur de pagination si absent
+    if (!document.getElementById('creneaux-pagination')) {
+        const pagDiv = document.createElement('div');
+        pagDiv.id = 'creneaux-pagination';
+        pagDiv.className = 'mt-2 flex justify-center';
+        creneauxContainer.parentNode.insertBefore(pagDiv, creneauxContainer.nextSibling);
+    }
+
+    // Si un service est déjà sélectionné (ex: après validation échouée), charger les créneaux
+    if (serviceSelect.value) {
+        fetchCreneaux();
+    }
+});
+</script>
 </x-app-layout>
