@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
                 ServiceAvailabilitySeeder::class,
                 NotificationSeeder::class,
                 FeedbackSeeder::class,
+                CreneauxSeeder::class,
     ]);
         User::factory()->create([
             'name' => 'Test User',
