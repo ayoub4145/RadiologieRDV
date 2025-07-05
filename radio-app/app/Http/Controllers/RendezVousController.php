@@ -15,15 +15,13 @@ class RendezVousController extends Controller
         'service_id' => 'required|exists:services,id',
         'date_heure' => 'required|date|after:now',
         'commentaire' => 'nullable|string',
-        'is_urgent' => 'nullable|boolean',
     ]);
 
     $rendezVous = new RendezVous();
     $rendezVous->user_id = Auth::id();
     $rendezVous->service_id = $validated['service_id'];
     $rendezVous->date_heure = $validated['date_heure'];
-    $rendezVous->is_urgent = $request->has('is_urgent');
-    $rendezVous->commentaire = $validated['commentaire'] ?? null;
+    $rendezVous->is_urgent = $request->has('is_urgent') ? 1 : 0;    $rendezVous->commentaire = $validated['commentaire'] ?? null;
     $rendezVous->statut = $request->has('is_urgent') ? 'en_attente' : 'confirmé';
     $rendezVous->save();
 
