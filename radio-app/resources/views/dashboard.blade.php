@@ -90,6 +90,7 @@
                                 </tbody>
                             </table>
                         <div id="creneaux-pagination" class="mt-2 flex justify-center"></div>
+                        <div id="choix-message-container" class="mt-4"></div>
 
                         </div>
                         <!-- Urgent -->
@@ -138,6 +139,40 @@
 
 {{-- Ajout de la pagination côté client pour les créneaux --}}
 <script>
+    window.choisirCreneau = function(date, time, creneauId) {
+    // Remplit l'input caché et le form service
+    document.getElementById('date_heure').value = `${date}T${time}`;
+
+    // Gérer input caché creneau_id
+    const existingInput = document.querySelector('input[name="creneau_id"]');
+    if (existingInput) existingInput.remove();
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'creneau_id';
+    input.value = creneauId;
+    document.querySelector('form').appendChild(input);
+
+    // Conteneur du message sous la pagination
+    const msgContainer = document.getElementById('choix-message-container');
+
+    // Supprime message précédent s’il existe
+    msgContainer.innerHTML = '';
+
+    // Crée un message succès
+    const msg = document.createElement('div');
+    msg.textContent = `✅ Vous avez bien choisi le créneau du ${new Date(date).toLocaleDateString()} à ${time}`;
+    msg.className = 'p-3 text-green-800 bg-green-100 border border-green-600 rounded';
+
+    // Insère le message dans le conteneur
+    msgContainer.appendChild(msg);
+
+    // Le message disparaît après 5 secondes
+    setTimeout(() => {
+        msg.remove();
+    }, 5000);
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     const serviceSelect = document.getElementById('service_id');
     const urgentCheckbox = document.getElementById('is_urgent');
