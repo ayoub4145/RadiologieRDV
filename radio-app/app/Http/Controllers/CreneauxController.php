@@ -24,7 +24,7 @@ public function getByService(Request $request, $service_id)
         $query->whereBetween('date', [now()->toDateString(), now()->addDay()->toDateString()]);
     } else {
         // Sinon, uniquement créneaux libres
-        $query->where('is_available', true);
+        $query->where('is_available', true)->where('date', '>=', now()->toDateString())->where('time', '>', now()->format('H:i:s'));
     }
 
     $creneaux = $query->orderBy('date')->orderBy('time')->get();
