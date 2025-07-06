@@ -1,23 +1,140 @@
 <style>
-#creneaux-pagination button {
-    border: none;
+/* Zone principale */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f5f9;
+    color: #1f2937;
+}
+
+/* Titres */
+h2, h3 {
+    color: #1e293b;
+}
+
+/* Messages de succès et alerte */
+.alert-success {
+    color: #047857;
+    background-color: #d1fae5;
+    border: 1px solid #10b981;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.alert-warning {
+    color: #b45309;
+    background-color: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+/* Formulaires */
+select, input[type="datetime-local"], textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+select:focus, input:focus, textarea:focus {
     outline: none;
-    margin: 0 2px;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+/* Boutons */
+button {
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Bouton principal */
+button[type="submit"] {
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+button[type="submit"]:hover {
+    background-color: #1d4ed8;
+}
+
+/* Bouton "Choisir" */
+button.bg-green-500 {
+    background-color: #4ade80;
+    color: #065f46;
+    font-weight: 600;
+}
+
+button.bg-green-500:hover {
+    background-color: #22c55e;
+    color: #064e3b;
+}
+
+/* Table des créneaux */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+th {
+    background-color: #f8fafc;
+    font-weight: bold;
+}
+
+/* Pagination */
+#creneaux-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+#creneaux-pagination button {
+    margin: 0 5px;
     padding: 6px 14px;
     border-radius: 6px;
-    background: #e5e7eb;
+    border: none;
+    background-color: #e5e7eb;
     color: #374151;
     font-weight: 600;
-    transition: background 0.2s, color 0.2s;
-    cursor: pointer;
 }
+
 #creneaux-pagination button.bg-blue-500 {
-    background: #2563eb;
-    color: #fff;
+    background-color: #2563eb;
+    color: white;
 }
+
 #creneaux-pagination button:hover:not(.bg-blue-500) {
-    background: #cbd5e1;
+    background-color: #cbd5e1;
     color: #1e293b;
+}
+
+/* Champ caché affiché dynamiquement */
+.hidden {
+    display: none;
+}
+
+/* Message de confirmation du créneau choisi */
+#choix-message-container div {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animation douce */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 <x-app-layout>
@@ -122,7 +239,7 @@
 
                         <!-- Submit -->
                         <div class="flex justify-end">
-                            <button type="submit" style="color: green" name="action" value="prendre"
+                            <button type="submit" style="color: rgb(13, 1, 1)" name="action" value="prendre"
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                                 Prendre rendez-vous
                             </button>
