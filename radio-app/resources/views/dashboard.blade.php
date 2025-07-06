@@ -126,6 +126,10 @@ th {
     display: none;
 }
 
+/* Message de confirmation du créneau choisi */
+#choix-message-container div {
+    animation: fadeIn 0.3s ease-in-out;
+}
 
 /* Animation douce */
 @keyframes fadeIn {
@@ -158,7 +162,7 @@ th {
 
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
                 @if (session('success'))
-                    <div class="mb-4 p-3 text-green-700 bg-green-100 rounded" style="colo">
+                    <div id="success-message" class="mb-4 p-3 text-green-700 bg-green-100 rounded" style="color: green;font-weight: bold;">
                         {{ session('success') }}
                     </div>
                 @endif
@@ -203,6 +207,7 @@ th {
                                 </tbody>
                             </table>
                         <div id="creneaux-pagination" class="mt-2 flex justify-center"></div>
+                        <div id="choix-message-container" class="mt-4"></div>
 
                         </div>
                         <!-- Urgent -->
@@ -265,6 +270,26 @@ th {
     input.value = creneauId;
     document.querySelector('form').appendChild(input);
 
+    // Conteneur du message sous la pagination
+    const msgContainer = document.getElementById('choix-message-container');
+
+    // Supprime message précédent s’il existe
+    msgContainer.innerHTML = '';
+
+    // Crée un message succès
+    const msg = document.createElement('div');
+    msg.textContent = `✅ Vous avez bien choisi le créneau du ${new Date(date).toLocaleDateString()} à ${time}`;
+    msg.className = 'p-3 text-green-800 bg-green-100 border border-green-600 rounded';
+
+    // Insère le message dans le conteneur
+    msgContainer.appendChild(msg);
+
+    // Le message disparaît après 5 secondes
+    setTimeout(() => {
+        msg.remove();
+    }, 5000);
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     const serviceSelect = document.getElementById('service_id');
     const urgentCheckbox = document.getElementById('is_urgent');
@@ -306,28 +331,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const end = start + itemsPerPage;
         const pageData = creneauxData.slice(start, end);
 
-        pageData.forEach(c => {
-            const dateStr = c.date;
-            const startTime = c.time.substring(0, 5);
-            const endTime = c.end_time ? c.end_time.substring(0,5) : '-';
-            creneauxList.innerHTML += `
-                <tr>
-                    <td class="px-4 py-2">${new Date(dateStr).toLocaleDateString()}</td>
-                    <td class="px-4 py-2">${startTime}</td>
-                    <td class="px-4 py-2">${endTime}</td>
-                    <td class="px-4 py-2 text-center">
-                        <button type="button"
-                            style="color: green;background-color: #e0f7e0; border: none; border-radius: 4px;"
-                            class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
-                            onclick="remplirDateHeure('${dateStr}', '${startTime}')"
-                            onmouseover="this.style.backgroundColor='#d4f0d4';" onmouseout="this.style.backgroundColor='#e0f7e0';"
-                            >
-                            Choisir
-                        </button>
-
-                    </td>
-                </tr>`;
-        });
+pageData.forEach(c => {
+    const dateStr = c.date;
+    const startTime = c.time.substring(0, 5);
+    const endTime = c.end_time ? c.end_time.substring(0,5) : '-';
+    creneauxList.innerHTML += `
+        <tr>
+            <td class="px-4 py-2">${new Date(dateStr).toLocaleDateString()}</td>
+            <td class="px-4 py-2">${startTime}</td>
+            <td class="px-4 py-2">${endTime}</td>
+            <td class="px-4 py-2 text-center">
+                <button type="button"
+                    class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
+                    onclick="choisirCreneau('${dateStr}', '${startTime}', ${c.id})">
+                    Choisir
+                </button>
+            </td>
+        </tr>`;
+});
 
         const totalPages = Math.ceil(creneauxData.length / itemsPerPage);
         renderPagination(totalPages);
@@ -375,4 +396,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const successMsg = document.getElementById('success-message');
+        if (successMsg) {
+            setTimeout(() => {
+                // Option 1: Faire disparaître doucement (transition)
+                successMsg.style.transition = 'opacity 0.5s ease';
+                successMsg.style.opacity = '0';
+
+                // Option 2: Cacher complètement après la transition (500ms)
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 500);
+            }, 5000); // 5000 ms = 5 secondes
+        }
+    });
+</script>
+
 </x-app-layout>
