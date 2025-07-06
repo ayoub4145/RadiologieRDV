@@ -162,7 +162,7 @@ th {
 
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
                 @if (session('success'))
-                    <div class="mb-4 p-3 text-green-700 bg-green-100 rounded">
+                    <div class="mb-4 p-3 text-green-700 bg-green-100 rounded" style="colo">
                         {{ session('success') }}
                     </div>
                 @endif
