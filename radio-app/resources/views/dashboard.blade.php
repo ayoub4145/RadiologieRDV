@@ -225,9 +225,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td class="px-4 py-2">${endTime}</td>
                     <td class="px-4 py-2 text-center">
                         <button type="button"
-                            style="color: green"
+                            style="color: green;background-color: #e0f7e0; border: none; border-radius: 4px;"
                             class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
-                            onclick="remplirDateHeure('${dateStr}', '${startTime}')">
+                            onclick="remplirDateHeure('${dateStr}', '${startTime}')"
+                            onmouseover="this.style.backgroundColor='#d4f0d4';" onmouseout="this.style.backgroundColor='#e0f7e0';"
+                            >
                             Choisir
                         </button>
                     </td>
