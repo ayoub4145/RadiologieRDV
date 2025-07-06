@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('creneaux-pagination').innerHTML = '';
             return;
         }
+        // Calculer les créneaux à afficher pour la page actuelle : Pagination
         const start = (currentPage - 1) * itemsPerPage;
         const end = start + itemsPerPage;
         const pageData = creneauxData.slice(start, end);
@@ -370,6 +371,8 @@ pageData.forEach(c => {
             .then(response => response.json())
             .then(data => {
                 creneauxData = data;
+                console.log('🔎 Données reçues:', data); // AJOUTE CETTE LIGNE
+
                 renderCreneaux();
                 creneauxContainer.classList.remove('hidden');
             })

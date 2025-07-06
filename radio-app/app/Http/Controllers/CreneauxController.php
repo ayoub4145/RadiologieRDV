@@ -24,7 +24,7 @@ public function getByService(Request $request, $service_id)
         $query->whereBetween('date', [now()->toDateString(), now()->addDay()->toDateString()]);
     } else {
         // Sinon, uniquement créneaux libres
-        $query->where('is_available', true)->where('date', '>=', now()->toDateString())->where('time', '>', now()->format('H:i:s'));
+        $query->where('is_available', true)->where('date', '>=', now()->toDateString())->where('time', '>', now()->format('H:i'));
     }
 
     $creneaux = $query->orderBy('date')->orderBy('time')->get();
@@ -36,7 +36,7 @@ public function getByService(Request $request, $service_id)
         $duree = $service->duree; // ex: 45
 
         // Calcul heure fin = heure début + durée
-        $debut = \Carbon\Carbon::createFromFormat('H:i:s', $creneau->time);
+        $debut = \Carbon\Carbon::createFromFormat('H:i', $creneau->time);
         $fin = $debut->copy()->addMinutes($duree);
 
         // Ajouter une propriété dynamique "end_time" formatée HH:mm

@@ -11,7 +11,7 @@ class CreneauxSeeder extends Seeder
 {
     public function run(): void
     {
-        $jours = 7; // Générer les créneaux pour les 7 prochains jours
+        $jours = 60; // Générer les créneaux pour les 7 prochains jours
         $heureDebut = '08:00';
         $heureFin = '18:00';
 
