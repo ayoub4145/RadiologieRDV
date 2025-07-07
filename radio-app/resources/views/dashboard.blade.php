@@ -100,6 +100,10 @@ th {
     justify-content: center;
     margin-top: 1rem;
 }
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 #creneaux-pagination button {
     margin: 0 5px;
