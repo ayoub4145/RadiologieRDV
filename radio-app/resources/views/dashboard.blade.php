@@ -245,12 +245,18 @@ button:disabled {
                         </div>
 
                         <!-- Submit -->
-                        <div class="flex justify-end">
-                            <button type="submit" style="color: rgb(13, 1, 1)" name="action" value="prendre"
+                        <div class="flex justify-between">
+                            <button type="submit" style="color: rgb(13, 1, 1);background-color:cyan" name="action" value="voir"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                Voir mes rendez-vous
+                            </button>
+
+                            <button type="submit" style="color: rgb(13, 1, 1);background-color:pink" name="action" value="prendre"
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                                 Prendre rendez-vous
                             </button>
                         </div>
+
                     </form>
                 @else
                     <div class="text-red-600 font-bold">
