@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
                 $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
                 $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+
                 $table->dateTime('date_heure');
                 $table->boolean('is_urgent')->default(false);
                 $table->string('statut')->default('en_attente');

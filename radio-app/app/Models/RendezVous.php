@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RendezVous extends Model
 {
-    protected $fillable = ['user_id', 'service_id', 'date_heure', 'is_urgent', 'statut', 'resultat', 'commentaire'];
+    protected $fillable = ['user_id', 'service_id', 'creneau_id','date_heure', 'is_urgent', 'statut', 'resultat', 'commentaire'];
 
     public function user()
     {

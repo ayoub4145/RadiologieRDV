@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RendezVous;
 use App\Models\Service;
+use App\Models\Creneaux;
+use Carbon\Carbon;
 class RendezVousController extends Controller
 
 {
@@ -25,13 +27,59 @@ public function store(Request $request)
     $rendezVous->is_urgent   = $request->has('is_urgent') ? 1 : 0;
     $rendezVous->commentaire = $validated['commentaire'] ?? null;
     $rendezVous->statut      = $rendezVous->is_urgent ? 'en_attente' : 'confirmé';
+
     $rendezVous->save();
 
+    // Si c'est une requête AJAX ou JSON, répondre en JSON
+    if ($request->wantsJson() || $request->ajax()) {
+        return response()->json([
+            'message' => 'Votre rendez-vous a été enregistré avec succès.',
+            'rendezVous' => $rendezVous,
+        ]);
+    }
+
+    // Sinon rediriger normalement
     return redirect()->back()->with('success', 'Votre rendez-vous a été enregistré avec succès.');
 }
+
 public function index()
 {
     $services = Service::all(); // ou Service::orderBy('nom')->get();
     return view('dashboard', compact('services'));
 }
+
+ // Renvoie la liste JSON des rendez-vous de l'utilisateur
+public function mesRendezVous()
+{
+    $userId = Auth::id();
+
+    $rdvs = RendezVous::where('user_id', $userId)
+        ->with('service')
+        ->orderBy('date_heure', 'asc')
+        ->get()
+        ->map(function ($rdv) {
+            // Convertir la string en Carbon
+            $dateTime = Carbon::parse($rdv->date_heure);
+
+            return [
+                'id' => $rdv->id,
+                'date' => $dateTime->format('d/m/Y'),
+                'time' => $dateTime->format('H:i'),
+                'service_name' => $rdv->service->service_name ?? '—',
+            ];
+        });
+
+    return response()->json($rdvs);
+}
+    // Supprime un rendez-vous (annulation)
+    public function annuler($id)
+    {
+        $userId = Auth::id();
+
+        $rdv = RendezVous::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
+        $rdv->delete();
+
+        return response()->json(['message' => 'Rendez-vous annulé avec succès']);
+    }
 }
