@@ -189,6 +189,9 @@ th {
                             @enderror
                         </div>
                         <input type="hidden" name="date_heure" id="date_heure" required>
+                        @error('date_heure')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
 
                         <!-- Créneaux dynamiques -->
                         <div id="creneaux-container" class="mt-6 hidden">
