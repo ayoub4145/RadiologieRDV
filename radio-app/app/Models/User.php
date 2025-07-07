@@ -53,7 +53,7 @@ class User extends Authenticatable
 {
     return $this->belongsTo(Role::class);
 }
-public function regenerateTwoFactorCode(): void
+public function generateTwoFactorCode(): void
 {
     $this->two_factor_code = rand(100000, 999999);
     $this->two_factor_expires_at = now()->addMinutes(10);

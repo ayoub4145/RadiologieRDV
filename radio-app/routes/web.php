@@ -31,10 +31,10 @@ Route::get('/', function () {
 
 
 Route::get('/dashboard', [RendezVousController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', '2fa'])
     ->name('dashboard');
 
-Route::middleware(['auth','verified'])->group(function () {
+Route::middleware(['auth','verified','2fa'])->group(function () {
 
     Route::get('/creneaux/{serviceId}', function(Request $request, $serviceId) {
         $isUrgent = (int) $request->query('urgent', 0); // 0 ou 1

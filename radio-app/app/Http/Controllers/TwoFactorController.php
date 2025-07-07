@@ -51,32 +51,23 @@ public function verify(Request $request)
     public function verifyCode(Request $request)
 {
 
-    $request->validate([
+       $request->validate([
         'code' => 'required|digits:6',
     ]);
-
     /** @var \App\Models\User $user */
     $user = Auth::user();
 
+    if (
+        $user->two_factor_code === $request->code &&
+        now()->lt($user->two_factor_expires_at)
+    ) {
+        $user->resetTwoFactorCode();
+        session(['2fa_passed' => true]); // très important
 
-    if (!$user) {
-        return redirect()->route('login');
+        return redirect()->intended('/dashboard');
     }
 
-    if ($user->two_factor_code !== $request->code) {
-        return back()->withErrors(['code' => 'Code 2FA invalide']);
-    }
+    return back()->with('error', 'Code invalide ou expiré.');
 
-    if ($user->two_factor_expires_at->lt(now())) {
-        return back()->withErrors(['code' => 'Le code 2FA a expiré']);
-    }
-
-    // Code valide → supprimer le code et valider la session 2FA
-    $user->resetTwoFactorCode();
-
-    session(['2fa_passed' => true]);
-
-    return redirect()->intended('dashboard');
 }
-
 }

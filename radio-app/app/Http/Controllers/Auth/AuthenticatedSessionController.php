@@ -23,17 +23,22 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+public function store(LoginRequest $request): RedirectResponse
+{
+    $request->authenticate();  // Authentifie l'utilisateur
+    $request->session()->regenerate();
 
-        $request->session()->regenerate();
-        $request->user()->regenerateTwoFactorCode();
-        $request->user()->notify(new TwoFactorCodeNotification());
+    // Génére et envoie le code 2FA
+    $user = $request->user();
+    $user->generateTwoFactorCode(); // à définir dans User.php si pas encore fait
+    $user->notify(new TwoFactorCodeNotification());
 
-        return redirect()->intended(route('dashboard', absolute: false));
-    }
+    // Supprime toute session 2fa passée
+    session()->forget('2fa_passed');
 
+    // Redirige vers la page de vérification 2FA
+    return redirect()->route('2fa.verify');
+}
     /**
      * Destroy an authenticated session.
      */
