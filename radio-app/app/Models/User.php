@@ -22,6 +22,9 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id', // Assuming you have a role_id to link to the Role model
+        'two_factor_code', // For 2FA
+        'two_factor_expires_at', // For 2FA expiration
+
     ];
 
     /**
@@ -49,6 +52,18 @@ class User extends Authenticatable
     public function role()
 {
     return $this->belongsTo(Role::class);
+}
+public function regenerateTwoFactorCode(): void
+{
+    $this->two_factor_code = rand(100000, 999999);
+    $this->two_factor_expires_at = now()->addMinutes(10);
+    $this->save();
+}
+public function resetTwoFactorCode()
+{
+    $this->two_factor_code = null;
+    $this->two_factor_expires_at = null;
+    $this->save();
 }
 
 }

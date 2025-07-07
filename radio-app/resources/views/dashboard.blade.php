@@ -353,42 +353,52 @@
         renderCreneaux();
     };
 
-    document.getElementById('btn-voir-rdv').addEventListener('click', function () {
-        fetch('/mes-rendezvous', { headers: { 'Accept': 'application/json' } })
-            .then(res => res.json())
-            .then(data => {
-                if (!Array.isArray(data)) {
-                    alert("Erreur : la réponse du serveur n'est pas un tableau.");
-                    console.error(data);
-                    return;
-                }
+   document.getElementById('btn-voir-rdv').addEventListener('click', function () {
+    fetch('/mes-rendezvous', { headers: { 'Accept': 'application/json' } })
+        .then(async res => {
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error("Réponse serveur non JSON:", text);
+                alert("Erreur côté serveur : réponse invalide.");
+                throw new Error("Réponse non-JSON reçue");
+            }
+        })
+        .then(data => {
+            if (!Array.isArray(data)) {
+                alert("Erreur : la réponse du serveur n'est pas un tableau.");
+                console.error(data);
+                return;
+            }
 
-                const tbody = document.getElementById('rdv-list-body');
-                tbody.innerHTML = '';
-                if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4">Aucun rendez-vous trouvé.</td></tr>`;
-                } else {
-                    data.forEach(r => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${r.date}</td>
-                                <td>${r.time}</td>
-                                <td>${r.service_name}</td>
-                                <td>
-                                    <button style="color:red" onclick="annulerRDV(${r.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                                        Annuler
-                                    </button>
-                                </td>
-                            </tr>`;
-                    });
-                }
-                document.getElementById('rdv-list-section').classList.remove('hidden');
-            })
-            .catch(error => {
-                alert("Erreur lors du chargement des rendez-vous");
-                console.error(error);
-            });
-    });
+            const tbody = document.getElementById('rdv-list-body');
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4">Aucun rendez-vous trouvé.</td></tr>`;
+            } else {
+                data.forEach(r => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${r.date}</td>
+                            <td>${r.time}</td>
+                            <td>${r.service_name}</td>
+                            <td>
+                                <button style="color:red" onclick="annulerRDV(${r.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                                    Annuler
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+            }
+            document.getElementById('rdv-list-section').classList.remove('hidden');
+        })
+        .catch(error => {
+            alert("Erreur lors du chargement des rendez-vous");
+            console.error(error);
+        });
+});
+
 
     window.annulerRDV = function(id) {
         if (!confirm("Annuler ce rendez-vous ?")) return;
