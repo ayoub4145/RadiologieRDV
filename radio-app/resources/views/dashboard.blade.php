@@ -304,13 +304,33 @@ document.addEventListener('DOMContentLoaded', function () {
         urgentCheckbox.addEventListener('change', fetchCreneaux);
     }
 
-    function renderPagination(totalPages) {
-        let paginationHtml = '';
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHtml += `<button type="button" class="mx-1 px-2 py-1 rounded ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200'}" onclick="changePage(${i})">${i}</button>`;
-        }
-        document.getElementById('creneaux-pagination').innerHTML = paginationHtml;
-    }
+function renderPagination(totalPages) {
+    let paginationHtml = '';
+
+    // Bouton Précédent (désactivé si page 1)
+    paginationHtml += `<button type="button"
+        class="mx-1 px-3 py-1 rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'bg-gray-200'}"
+        ${currentPage === 1 ? 'disabled' : ''}
+        onclick="changePage(${currentPage - 1})">&laquo; Précédent</button>`;
+
+    // Bouton Suivant (désactivé si dernière page)
+    paginationHtml += `<button type="button"
+        class="mx-1 px-3 py-1 rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'bg-gray-200'}"
+        ${currentPage === totalPages ? 'disabled' : ''}
+        onclick="changePage(${currentPage + 1})">Suivant &raquo;</button>`;
+
+    document.getElementById('creneaux-pagination').innerHTML = paginationHtml;
+}
+
+window.changePage = function(page) {
+    // Protéger contre dépassement bornes
+    const totalPages = Math.ceil(creneauxData.length / itemsPerPage);
+    if (page < 1 || page > totalPages) return;
+
+    currentPage = page;
+    renderCreneaux();
+}
+
 
     window.changePage = function(page) {
         currentPage = page;
@@ -354,32 +374,39 @@ pageData.forEach(c => {
         const totalPages = Math.ceil(creneauxData.length / itemsPerPage);
         renderPagination(totalPages);
     }
+function fetchCreneaux() {
+    const serviceId = serviceSelect.value;
+    const isUrgent = urgentCheckbox && urgentCheckbox.checked ? 1 : 0;
+    currentPage = 1;
 
-    function fetchCreneaux() {
-        const serviceId = serviceSelect.value;
-        const isUrgent = urgentCheckbox && urgentCheckbox.checked ? 1 : 0;
-        currentPage = 1;
-
-        if (!serviceId) {
-            creneauxContainer.classList.add('hidden');
-            creneauxList.innerHTML = '';
-            document.getElementById('creneaux-pagination').innerHTML = '';
-            return;
-        }
-
-        fetch(`/api/creneaux/${serviceId}?urgent=${isUrgent}`)
-            .then(response => response.json())
-            .then(data => {
-                creneauxData = data;
-                console.log('🔎 Données reçues:', data); // AJOUTE CETTE LIGNE
-
-                renderCreneaux();
-                creneauxContainer.classList.remove('hidden');
-            })
-            .catch(error => {
-                console.error("Erreur lors de la récupération des créneaux :", error);
-            });
+    if (!serviceId) {
+        creneauxContainer.classList.add('hidden');
+        creneauxList.innerHTML = '';
+        document.getElementById('creneaux-pagination').innerHTML = '';
+        return;
     }
+
+    fetch(`/creneaux/${serviceId}?urgent=${isUrgent}`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Réponse réseau incorrecte');
+        return response.json();
+    })
+    .then(data => {
+        creneauxData = data;
+        console.log('🔎 Données reçues:', data);
+
+        renderCreneaux();
+        creneauxContainer.classList.remove('hidden');
+    })
+    .catch(error => {
+        console.error("Erreur lors de la récupération des créneaux :", error);
+    });
+}
+
 
     window.remplirDateHeure = function (date, time) {
         document.getElementById('date_heure').value = `${date}T${time}`;
