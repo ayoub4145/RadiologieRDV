@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('role')->default('patient'); // patient | medecin | admin
+
             $table->string('password');
              $table->string('two_factor_code')->nullable(); // Pour 2FA
             $table->timestamp('two_factor_expires_at')->nullable(); // Pour l'expiration de 2FA

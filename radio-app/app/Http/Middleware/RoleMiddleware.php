@@ -17,15 +17,15 @@ class RoleMiddleware
 
     public function handle(Request $request, Closure $next,string $role): Response
     {
-         if (!Auth::check()) {
-            return redirect('/login');
+    if (!Auth::check()) {
+            return redirect()->route('login');
         }
 
-        $user = Auth::user();
-
-        if (!$user->role || $user->role->name !== $role) {
-            abort(403, 'Accès non autorisé');
+        if (Auth::user()->role !== $role) {
+            abort(403, 'Accès interdit');
         }
+
+
 
         return $next($request);
     }

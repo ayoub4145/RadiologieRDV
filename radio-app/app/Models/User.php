@@ -29,6 +29,7 @@ class User extends Authenticatable
         'two_factor_expires_at', // For 2FA expiration
         'google2fa_secret',
         'two_factor_enabled',
+        'role', // Assuming role is a string like 'patient', 'medecin', 'admin'
 
     ];
 

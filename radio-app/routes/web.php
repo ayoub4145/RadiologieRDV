@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RendezVousController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CreneauxController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\TwoFactorController;
@@ -12,6 +13,32 @@ use App\Models\RendezVous;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
+use App\Http\Controllers\MedecinController;
+use App\Http\Controllers\AdminController;
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    // Autres routes d'administration ici
+});
+
+//Routes pour medecin
+Route::middleware(['auth', 'role:medecin'])->group(function () {
+    Route::get('/medecin/dashboard', [MedecinController::class, 'index']);
+});
+Route::get('/redirect-by-role', function () {
+    $user = Auth::user();
+
+    return match ($user->role) {
+        'admin' => redirect('/admin/dashboard'),
+        'medecin' => redirect('/medecin/dashboard'),
+        default => redirect('/dashboard'), // patient
+    };
+})->middleware('auth')->name('redirect.by.role');
+//authentification medecin
+Route::get('/register/medecin', function () {
+    return view('auth.register-medecin');
+})->name('register.medecin.form');
+
+Route::post('/register/medecin', [RegisteredUserController::class, 'storeMedecin'])->name('register.medecin');
 
 // Routes 2FA - AVANT tout autre middleware
 Route::middleware(['auth'])->prefix('2fa')->group(function () {
@@ -37,13 +64,9 @@ Route::middleware(['auth'])->prefix('2fa')->group(function () {
         return back()->withErrors(['code' => 'Code incorrect']);
     })->name('2fa.verify');
 });
-
+//Routes de DEBUG
 Route::get('/debug-middleware', function () {
     dd(app('router')->getMiddleware());
-});
-
-Route::get('/test-2fa', function () {
-    return 'Middleware 2FA fonctionne !';
 });
 
 Route::get('/hello', function () {
@@ -53,7 +76,7 @@ Route::get('/hello', function () {
 Route::get('/', function () {
     return view('index');
 });
-
+/////////////////////////////////////////////////////////// Routes pour Patient
 // Routes protégées par 2FA
 Route::get('/dashboard', [RendezVousController::class, 'index'])
     ->middleware(['auth','2fa'])

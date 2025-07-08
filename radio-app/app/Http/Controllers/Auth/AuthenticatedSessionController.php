@@ -37,7 +37,15 @@ public function store(LoginRequest $request): RedirectResponse
     session()->forget('2fa_passed');
 
     // Redirige vers la page de vérification 2FA
-    return redirect()->route('2fa.verify');
+    $user = Auth::user();
+
+    if ($user->role === 'admin') {
+        return redirect('/admin/dashboard');
+    } elseif ($user->role === 'medecin') {
+        return redirect('/medecin/dashboard');
+    }
+
+    return redirect('/dashboard'); // patient
 }
     /**
      * Destroy an authenticated session.

@@ -15,6 +15,10 @@ class TwoFactorMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
+        // ✅ Bypass 2FA si c'est un admin
+        if ($user && $user->role === 'admin') {
+            return $next($request);
+        }
 
         // Skip middleware for 2FA-related routes to avoid circular redirects
         if ($request->routeIs('2fa.*') || $request->is('2fa/*')) {

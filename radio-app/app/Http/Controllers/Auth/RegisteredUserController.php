@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,10 +36,11 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role_id' => 1, // Assuming '1' is the ID for the 'patient' role
+            'role' => 'patient', // Assuming '1' is the ID for the 'patient' role
             'password' => Hash::make($request->password),
         ]);
 
@@ -48,4 +50,25 @@ class RegisteredUserController extends Controller
 
         return redirect(route('dashboard', absolute: false));
     }
+            public function storeMedecin(Request $request): RedirectResponse
+        {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|confirmed|min:8',
+            ]);
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'medecin', // <-- assigné explicitement
+            ]);
+
+            Auth::login($user);
+
+            return redirect()->route('redirect.by.role')
+                ->with('status', 'Medecin registered successfully!');
+        }
+
 }
