@@ -17,19 +17,17 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('two_factor_code')->nullable();
-            $table->timestamp('two_factor_expires_at')->nullable();
+             $table->string('two_factor_code')->nullable(); // Pour 2FA
+            $table->timestamp('two_factor_expires_at')->nullable(); // Pour l'expiration de 2FA
+             // Clé secrète Google 2FA (TOTP)
+            $table->string('google2fa_secret')->nullable();
 
+            // Statut activatiaon 2FA (true = activé)
+            $table->boolean('two_factor_enabled')->default(false);
             $table->rememberToken();
             $table->timestamps();
 
-            // Crée la colonne d'abord, puis la contrainte ensuite
-            $table->unsignedBigInteger('role_id');
 
-            $table->foreign('role_id')
-                  ->references('id')
-                  ->on('roles')
-                  ->onDelete('cascade');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

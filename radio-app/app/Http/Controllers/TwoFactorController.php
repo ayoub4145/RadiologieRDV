@@ -2,72 +2,113 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\TwoFactorCodeNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use PragmaRX\Google2FAQRCode\Google2FA;
-use App\Notifications\TwoFactorCodeNotification;
+use Illuminate\Support\Facades\Redirect;
+use PragmaRX\Google2FALaravel\Google2FA;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Writer;
 
 class TwoFactorController extends Controller
 {
-//     public function resend(Request $request){
-
-//         Auth::user()->regenerateTwoFactorCode();
-//         Auth::user()->notify(new TwoFactorCodeNotification());
-//         return back()->with('status', 'Un nouveau code a été envoyé à votre adresse e-mail.');
-//     }
-
-public function verify(Request $request)
-{
- return view('2FA.verify');
-
-}
-//  public function verifyCode(Request $request)
-//     {
-//         $request->validate([
-//             'code' => 'required|digits:6',
-//         ]);
-
-//         if ($request->code == Auth::user()->two_factor_code) {
-//             session()->put('2fa_passed', true);
-//             return redirect()->intended('/dashboard');
-//         }
-
-//         return back()->withErrors(['code' => 'Le code est incorrect.']);
-//     }
-
-    public function resend(Request $request)
+    public function show()
     {
-        /** @var \App\Models\User $user */
-            $user = Auth::user();
+        $user = Auth::user();
+        $google2fa = app(Google2FA::class);
 
-            if ($user && method_exists($user, 'regenerateTwoFactorCode')) {
-                $user->regenerateTwoFactorCode();
-                $user->notify(new TwoFactorCodeNotification());
-            }
+        if (!$user->google2fa_secret) {
+            /** @var \App\Models\User $user */
 
-        return back()->with('status', 'Un nouveau code a été envoyé à votre adresse e-mail.');
+            $user->google2fa_secret = $google2fa->generateSecretKey();
+            $user->save();
+        }
+
+        $QR_Image = $this->generateQrCode($user->email, $user->google2fa_secret);
+
+        return view('auth.2fa.enable', [
+            'QR_Image' => $QR_Image,
+            'secret' => $user->google2fa_secret,
+        ]);
     }
 
-    public function verifyCode(Request $request)
-{
+    private function generateQrCode($email, $secret)
+    {
+        $google2fa = app(Google2FA::class);
+        $qrUrl = $google2fa->getQRCodeUrl(
+            config('app.name'),
+            $email,
+            $secret
+        );
 
-       $request->validate([
-        'code' => 'required|digits:6',
-    ]);
+        $writer = new Writer(
+            new ImageRenderer(
+                new RendererStyle(200),
+                new SvgImageBackEnd()
+            )
+        );
+
+        return $writer->writeString($qrUrl);
+    }
+
+    public function enable(Request $request)
+    {
     /** @var \App\Models\User $user */
-    $user = Auth::user();
 
-    if (
-        $user->two_factor_code === $request->code &&
-        now()->lt($user->two_factor_expires_at)
-    ) {
-        $user->resetTwoFactorCode();
-        session(['2fa_passed' => true]); // très important
+        $request->validate(['code' => 'required|digits:6']);
 
-        return redirect()->intended('/dashboard');
+        $user = Auth::user();
+        $google2fa = app(Google2FA::class);
+
+        if ($google2fa->verifyKey($user->google2fa_secret, $request->code)) {
+            /** @var \App\Models\User $user */
+
+            $user->two_factor_enabled = true;
+            $user->save();
+
+            session(['2fa_passed' => true]);
+
+            return redirect()->route('dashboard')->with('success', '2FA activée avec succès.');
+        }
+
+        return back()->withErrors(['code' => 'Le code est invalide.']);
     }
 
-    return back()->with('error', 'Code invalide ou expiré.');
+    public function disable()
+    {
+    /** @var \App\Models\User $user */
 
-}
+        $user = Auth::user();
+
+        $user->two_factor_enabled = false;
+        $user->google2fa_secret = null;
+        $user->save();
+
+        return redirect()->route('dashboard')->with('success', '2FA désactivée.');
+    }
+
+    public function show2faSetup()
+    {
+         /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $google2fa = app(Google2FA::class);
+
+        if (!$user->google2fa_secret) {
+            $user->google2fa_secret = $google2fa->generateSecretKey();
+            $user->save();
+        }
+
+        $qrCode = $google2fa->getQRCodeInline(
+            config('app.name'),
+            $user->email,
+            $user->google2fa_secret
+        );
+
+        return view('auth.2fa.setup', [
+            'qrCode' => $qrCode,
+            'secret' => $user->google2fa_secret,
+        ]);
+    }
 }

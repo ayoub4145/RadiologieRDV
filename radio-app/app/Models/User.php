@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use PragmaRX\Google2FALaravel\Support\Authenticator;
+
 
 class User extends Authenticatable
 {
@@ -21,7 +23,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role_id', // Assuming you have a role_id to link to the Role model
         'two_factor_code', // For 2FA
         'two_factor_expires_at', // For 2FA expiration
 
@@ -49,10 +50,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function role()
-{
-    return $this->belongsTo(Role::class);
-}
+
 public function generateTwoFactorCode(): void
 {
     $this->two_factor_code = rand(100000, 999999);
@@ -65,5 +63,18 @@ public function resetTwoFactorCode()
     $this->two_factor_expires_at = null;
     $this->save();
 }
+// app/Models/User.php
+
+
+public function getGoogle2faSecretAttribute($value)
+{
+    return decrypt($value);
+}
+
+public function setGoogle2faSecretAttribute($value)
+{
+    $this->attributes['google2fa_secret'] = encrypt($value);
+}
+
 
 }
