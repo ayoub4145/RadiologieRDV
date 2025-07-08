@@ -13,62 +13,53 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
 
+// Routes 2FA - AVANT tout autre middleware
+Route::middleware(['auth'])->prefix('2fa')->group(function () {
+    Route::get('/setup', [TwoFactorController::class, 'show2faSetup'])->name('2fa.setup');
+    Route::post('/enable', [TwoFactorController::class, 'enable'])->name('2fa.enable');
+    Route::post('/disable', [TwoFactorController::class, 'disable'])->name('2fa.disable');
+
+    Route::get('/verify', function () {
+        return view('auth.2fa.verify');
+    })->name('2fa.verify.form');
+
+    Route::post('/verify', function (Request $request) {
+        $request->validate(['code' => 'required|digits:6']);
+
+        $user = Auth::user();
+        $google2fa = app(Google2FA::class);
+
+        if ($google2fa->verifyKey($user->google2fa_secret, $request->code)) {
+            session(['2fa_passed' => true]);
+            return redirect()->intended('/dashboard');
+        }
+
+        return back()->withErrors(['code' => 'Code incorrect']);
+    })->name('2fa.verify');
+});
+
 Route::get('/debug-middleware', function () {
     dd(app('router')->getMiddleware());
 });
 
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/2fa/setup', [TwoFactorController::class, 'show2faSetup'])->name('2fa.setup');
-    Route::post('/2fa/enable', [TwoFactorController::class, 'enable'])->name('2fa.enable');
-    Route::post('/2fa/disable', [TwoFactorController::class, 'disable'])->name('2fa.disable');
-    Route::get('/2fa/verify', function () {
-    return view('auth.2fa.verify');
-})->name('2fa.verify.form');
-
-    Route::post('/2fa/verify', function (Request $request) {
-    $user = Auth::user();
-    $google2fa = app(Google2FA::class);
-
-    if ($google2fa->verifyKey($user->google2fa_secret, $request->code)) {
-        session(['2fa_passed' => true]);
-        return redirect()->intended('/dashboard');
-    }
-
-    return back()->withErrors(['code' => 'Code incorrect']);
-})->name('2fa.verify');
-});
-
-
-
-
-
-
 Route::get('/test-2fa', function () {
     return 'Middleware 2FA fonctionne !';
 });
+
 Route::get('/hello', function () {
     return 'Hello world!';
 });
-
-
-// Route::get('/2fa', [TwoFactorController::class, 'verify'])->name('2fa.verify');
-// Route::post('/2fa', [TwoFactorController::class, 'verifyCode'])->name('2fa.verify.post');
-// Route::get('/2fa/resend', [TwoFactorController::class, 'resend'])->name('2fa.resend');
-
 
 Route::get('/', function () {
     return view('index');
 });
 
-
-
+// Routes protégées par 2FA
 Route::get('/dashboard', [RendezVousController::class, 'index'])
     ->middleware(['auth','2fa'])
     ->name('dashboard');
 
 Route::middleware(['auth','2fa'])->group(function () {
-
     Route::get('/creneaux/{serviceId}', function(Request $request, $serviceId) {
         $isUrgent = (int) $request->query('urgent', 0); // 0 ou 1
 
@@ -104,18 +95,12 @@ Route::middleware(['auth','2fa'])->group(function () {
         return response()->json($creneaux);
     });
 
-
-    // Route::get('/2fa/enable', [TwoFactorController::class, 'enable2FA'])->name('2fa.enable');
-
-    // Route::get('/2fa', [TwoFactorController::class, 'show2faForm'])->name('2fa.form');
     Route::get('/mes-rendezvous', [RendezVousController::class, 'mesRendezVous']);
     Route::delete('/annuler-rendezvous/{id}', [RendezVousController::class, 'annuler']);
-    // Route::get('/creneaux/{service_id}', [CreneauxController::class, 'getByService']);
     Route::post('/prendre-rdv', [RendezVousController::class, 'store'])->name('rendezvous.store');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 require __DIR__.'/auth.php';

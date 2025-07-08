@@ -16,20 +16,25 @@ class TwoFactorMiddleware
     {
         $user = Auth::user();
 
+        // Skip middleware for 2FA-related routes to avoid circular redirects
+        if ($request->routeIs('2fa.*') || $request->is('2fa/*')) {
+            return $next($request);
+        }
+
         if ($user) {
-            // Cas 1 : L’utilisateur n’a pas encore de clé secrète
+            // Si l'utilisateur n'a pas de clé secrète, le rediriger vers setup
             if (!$user->google2fa_secret) {
-                return redirect()->route('2fa.setup');
+                return redirect('/2fa/setup');
             }
 
-            // Cas 2 : Clé présente mais 2FA non activé
+            // Si la clé existe mais 2FA n'est pas activé, rediriger vers setup
             if (!$user->two_factor_enabled) {
-                return redirect()->route('2fa.setup');
+                return redirect('/2fa/setup');
             }
 
-            // Cas 3 : 2FA activé mais pas encore validé pour cette session
+            // Si 2FA est activé mais pas validé pour cette session, rediriger vers verify
             if (!session('2fa_passed')) {
-                return redirect()->route('2fa.verify.form');
+                return redirect('/2fa/verify');
             }
         }
 

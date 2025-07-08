@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PragmaRX\Google2FALaravel\Support\Authenticator;
+use Illuminate\Support\Facades\Log;
+
 
 
 class User extends Authenticatable
@@ -25,6 +27,8 @@ class User extends Authenticatable
         'password',
         'two_factor_code', // For 2FA
         'two_factor_expires_at', // For 2FA expiration
+        'google2fa_secret',
+        'two_factor_enabled',
 
     ];
 
@@ -37,7 +41,9 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
+    protected $casts = [
+    'two_factor_enabled' => 'boolean',
+    ];
     /**
      * Get the attributes that should be cast.
      *
@@ -68,7 +74,16 @@ public function resetTwoFactorCode()
 
 public function getGoogle2faSecretAttribute($value)
 {
-    return decrypt($value);
+      if (!$value) {
+        return null;
+    }
+
+    try {
+        return decrypt($value);
+    } catch (\Exception $e) {
+        Log::error('Erreur de déchiffrement 2FA : ' . $e->getMessage());
+        return null;
+    }
 }
 
 public function setGoogle2faSecretAttribute($value)
