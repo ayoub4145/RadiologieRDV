@@ -16,9 +16,10 @@ return new class extends Migration
                 $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
                 $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
 
+                // Clé étrangère vers visiteurs(id)
+                $table->foreignId('visiteur_id')->nullable()->constrained('visiteur')->onDelete('cascade');
                 $table->dateTime('date_heure');
                 $table->boolean('is_urgent')->default(false);
-                $table->string('statut')->default('en_attente');
                 $table->text('resultat')->nullable();
                 $table->text('commentaire')->nullable();
             $table->timestamps();

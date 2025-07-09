@@ -16,6 +16,10 @@ use PragmaRX\Google2FA\Google2FA;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
 
+Route::get('/rendez-vous-gest', function () {
+    return view('rendez-vous-gest');
+})->name('rendez-vous-gest');
+
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     // Autres routes d'administration ici

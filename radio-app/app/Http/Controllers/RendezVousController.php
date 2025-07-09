@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\RendezVous;
 use App\Models\Service;
 use App\Models\Creneaux;
+use App\Models\Visiteur;
 use Carbon\Carbon;
 class RendezVousController extends Controller
 
@@ -18,7 +19,13 @@ public function store(Request $request)
         'service_id'   => 'required|exists:services,id',
         'date_heure'   => 'required|date|after:now',
         'commentaire'  => 'nullable|string',
+        'visiteur_id'  => 'nullable|exists:visiteur,id',
     ]);
+    // Vérifie si un visiteur avec cet email existe déjà
+    $visiteur = Visiteur::firstOrCreate(
+        ['email' => $request->email],
+        ['nom' => $request->nom]
+    );
 
     $rendezVous = new RendezVous();
     $rendezVous->user_id     = Auth::id();
@@ -26,8 +33,8 @@ public function store(Request $request)
     $rendezVous->date_heure  = $validated['date_heure'];
     $rendezVous->is_urgent   = $request->has('is_urgent') ? 1 : 0;
     $rendezVous->commentaire = $validated['commentaire'] ?? null;
-    $rendezVous->statut      = $rendezVous->is_urgent ? 'en_attente' : 'confirmé';
-
+    // $rendezVous->statut      = $rendezVous->is_urgent ? 'en_attente' : 'confirmé';
+    $rendezVous->visiteur_id = $validated['visiteur_id'] ?? $visiteur->id;
     $rendezVous->save();
 
     // Si c'est une requête AJAX ou JSON, répondre en JSON

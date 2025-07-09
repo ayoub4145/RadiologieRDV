@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class RendezVous extends Model
 {
-    protected $fillable = ['user_id', 'service_id', 'creneau_id','date_heure', 'is_urgent', 'statut', 'resultat', 'commentaire'];
+    protected $fillable = ['user_id', 'service_id','date_heure', 'is_urgent', 'resultat', 'commentaire'];
+    protected $guard=['visiteur_id'];
 
     public function user()
     {
@@ -23,6 +24,11 @@ class RendezVous extends Model
     {
         return $this->hasOne(Feedback::class);
     }
+        public function visiteur()
+        {
+            return $this->belongsTo(Visiteur::class);
+        }
+
     /** @use HasFactory<\Database\Factories\RendezVousFactory> */
     use HasFactory;
 }

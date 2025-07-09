@@ -24,7 +24,7 @@ class RendezVousFactory extends Factory
             'service_id' => $service->id,
             'date_heure' => $this->faker->dateTimeBetween('+1 days', '+1 month'),
             'is_urgent' => $this->faker->boolean(10),
-            'statut' => $this->faker->randomElement(['en_attente', 'confirmé', 'annulé']),
+            // 'statut' => $this->faker->randomElement(['en_attente', 'confirmé', 'annulé']),
             'resultat' => null,
             'commentaire' => $this->faker->optional()->sentence(),
         ];

@@ -61,7 +61,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone_number' => ['required', 'string', 'max:20'], // Validation pour le numéro de téléphone
+            'phone_number' => ['required', 'string','min:10' ,'max:15'], // Validation pour le numéro de téléphone
         ]);
 
 
@@ -79,31 +79,7 @@ class RegisteredUserController extends Controller
 
         return redirect(route('dashboard', absolute: false));
     }
-    /**
- * @OA\Post(
- *     path="/register-medecin",
- *     summary="Enregistrement d'un nouveau médecin",
- *     tags={"Authentification"},
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *             required={"name", "email", "password", "password_confirmation"},
- *             @OA\Property(property="name", type="string", example="Dr. Ahmed Benyahia"),
- *             @OA\Property(property="email", type="string", format="email", example="medecin@example.com"),
- *             @OA\Property(property="password", type="string", format="password", example="medecin1234"),
- *             @OA\Property(property="password_confirmation", type="string", format="password", example="medecin1234")
- *         )
- *     ),
- *     @OA\Response(
- *         response=302,
- *         description="Redirection selon le rôle après enregistrement"
- *     ),
- *     @OA\Response(
- *         response=422,
- *         description="Erreur de validation"
- *     )
- * )
- */
+
 
             public function storeMedecin(Request $request): RedirectResponse
         {
@@ -111,6 +87,7 @@ class RegisteredUserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|confirmed|min:8',
+                'phone_number'=>'required|string|min:10|max:15', // Validation pour le numéro de téléphone
             ]);
 
             $user = User::create([
@@ -118,6 +95,7 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'medecin', // <-- assigné explicitement
+                'phone_number' => $request->phone_number, // Enregistrement du numéro de téléphone
             ]);
 
             Auth::login($user);
