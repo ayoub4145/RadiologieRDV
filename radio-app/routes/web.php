@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
+
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     // Autres routes d'administration ici
@@ -79,10 +80,10 @@ Route::get('/', function () {
 /////////////////////////////////////////////////////////// Routes pour Patient
 // Routes protégées par 2FA
 Route::get('/dashboard', [RendezVousController::class, 'index'])
-    ->middleware(['auth','2fa'])
+    ->middleware(['auth','verified','2fa'])
     ->name('dashboard');
 
-Route::middleware(['auth','2fa'])->group(function () {
+Route::middleware(['auth','verified','2fa'])->group(function () {
     Route::get('/creneaux/{serviceId}', function(Request $request, $serviceId) {
         $isUrgent = (int) $request->query('urgent', 0); // 0 ou 1
 

@@ -30,6 +30,7 @@ class User extends Authenticatable
         'google2fa_secret',
         'two_factor_enabled',
         'role', // Assuming role is a string like 'patient', 'medecin', 'admin'
+        'phone_number'
 
     ];
 

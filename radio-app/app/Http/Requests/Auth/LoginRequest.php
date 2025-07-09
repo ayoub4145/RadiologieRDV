@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use App\Rules\EmailOrPhoneNumber;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -27,7 +28,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required', 'string',new EmailOrPhoneNumber()],
             'password' => ['required', 'string'],
         ];
     }
@@ -41,12 +42,21 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        // Determine if the 'login' input is an email or a phone number
+        $fieldType = filter_var($this->input('login'), FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+        // Attempt authentication with the determined field
+        if (! Auth::attempt([$fieldType => $this->input('login'), 'password' => $this->password], $this->boolean('remember'))) {
+            // If the first attempt fails, try with the alternative field
+            $alternativeField = ($fieldType === 'email') ? 'phone_number' : 'email';
+            if (! Auth::attempt([$alternativeField => $this->input('login'), 'password' => $this->password], $this->boolean('remember'))) {
+                // If both attempts fail, increment rate limiter and throw error
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'login' => trans('auth.failed'),
+                ]);
+            }
         }
 
         RateLimiter::clear($this->throttleKey());

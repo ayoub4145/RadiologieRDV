@@ -15,6 +15,20 @@
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
+        <!-- Phone number -->
+        <div class="mt-4">
+            <x-input-label for="phone_number" :value="__('Phone Number (e.g., +2126XXXXXXXX or 06XXXXXXXX)')" /> {{-- Changé "Email" en "Phone Number" --}}
+            <x-text-input
+                id="phone_number"                               {{-- Changé "email" en "phone_number" --}}
+                class="block mt-1 w-full"
+                type="tel"                                      {{-- Changé "email" en "tel" pour le type de l'input --}}
+                name="phone_number"                             {{-- Changé "email" en "phone_number" --}}
+                :value="old('phone_number')"                    {{-- Changé "email" en "phone_number" --}}
+                required                                        {{-- Le numéro de téléphone est souvent requis --}}
+                autocomplete="tel"                              {{-- Changé "username" en "tel" pour l'autocomplétion --}}
+            />
+            <x-input-error :messages="$errors->get('phone_number')" class="mt-2" /> {{-- Changé "email" en "phone_number" --}}
+        </div>
 
         <!-- Password -->
         <div class="mt-4">
