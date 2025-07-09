@@ -300,7 +300,7 @@
             const endTime = c.end_time ? c.end_time.substring(0, 5) : '-';
             creneauxList.innerHTML += `
                 <tr>
-                    <td class="px-4 py-2">${new Date(dateStr).toLocaleDateString()}</td>
+                    <td class="px-4 py-2">${new Date(dateStr).toLocaleDateString('fr-FR', { weekday: 'long' }).toUpperCase()} : ${new Date(dateStr).toLocaleDateString()}</td>
                     <td class="px-4 py-2">${startTime}</td>
                     <td class="px-4 py-2">${endTime}</td>
                     <td class="px-4 py-2 text-center">
