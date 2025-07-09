@@ -75,7 +75,7 @@
         <h2>Créez votre compte pour continuer</h2>
         <a href="{{ route('register') }}">Créer un compte</a>
         <h3>Ou prenez un rendez vous en tant que visiteur</h3>
-        <a href="{{ route('rendez-vous-gest') }}">Prendre rendez-vous!</a>
+        <a href="{{ route('rendez-vous-guest') }}">Prendre rendez-vous!</a>
     </div>
 </body>
 </html>

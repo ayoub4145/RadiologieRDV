@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RendezVous extends Model
 {
     protected $fillable = ['user_id', 'service_id','date_heure', 'is_urgent', 'resultat', 'commentaire'];
-    protected $guard=['visiteur_id'];
+    #protected $guard=['visiteur_id'];
 
     public function user()
     {

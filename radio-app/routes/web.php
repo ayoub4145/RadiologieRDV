@@ -15,10 +15,15 @@ use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\VisiteurController;
+Route::get('/rendez-vous-guest', [VisiteurController::class,'index'])->name('rendez-vous-guest');
+Route::post('/rendez-vous-guest', [VisiteurController::class, 'store'])->name('visiteur.rendezvous.store');
 
-Route::get('/rendez-vous-gest', function () {
-    return view('rendez-vous-gest');
-})->name('rendez-vous-gest');
+
+
+
+
+
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');

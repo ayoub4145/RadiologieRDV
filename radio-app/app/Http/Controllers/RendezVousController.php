@@ -19,7 +19,7 @@ public function store(Request $request)
         'service_id'   => 'required|exists:services,id',
         'date_heure'   => 'required|date|after:now',
         'commentaire'  => 'nullable|string',
-        'visiteur_id'  => 'nullable|exists:visiteur,id',
+        // 'visiteur_id'  => 'nullable|exists:visiteur,id',
     ]);
     // Vérifie si un visiteur avec cet email existe déjà
     $visiteur = Visiteur::firstOrCreate(
@@ -34,7 +34,7 @@ public function store(Request $request)
     $rendezVous->is_urgent   = $request->has('is_urgent') ? 1 : 0;
     $rendezVous->commentaire = $validated['commentaire'] ?? null;
     // $rendezVous->statut      = $rendezVous->is_urgent ? 'en_attente' : 'confirmé';
-    $rendezVous->visiteur_id = $validated['visiteur_id'] ?? $visiteur->id;
+    // $rendezVous->visiteur_id = $validated['visiteur_id'] ?? $visiteur->id;
     $rendezVous->save();
 
     // Si c'est une requête AJAX ou JSON, répondre en JSON

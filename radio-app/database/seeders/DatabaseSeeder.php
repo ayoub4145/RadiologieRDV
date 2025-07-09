@@ -22,10 +22,6 @@ class DatabaseSeeder extends Seeder
                 NotificationSeeder::class,
                 FeedbackSeeder::class,
     ]);
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-        
+
     }
 }
