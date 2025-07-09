@@ -1,0 +1,1048 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Radiology API",
+        "description": "Appointment booking application for a radiology department",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api",
+            "description": "Local server"
+        },
+        {
+            "url": "https://radiologie-rdv.com/api",
+            "description": "Production server"
+        }
+    ],
+    "paths": {
+        "/admin/dashboard": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Dashboard Admin",
+                "description": "Retourne la vue dashboard pour les admins connectés.",
+                "operationId": "ab8026b579f7e78aaa488b3477e4b1f2",
+                "responses": {
+                    "200": {
+                        "description": "Succès"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/login": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Afficher la page de connexion",
+                "operationId": "d38b0625602ec8e41c3bb98aa2e969de",
+                "responses": {
+                    "200": {
+                        "description": "Page de connexion affichée"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Authentifier un utilisateur",
+                "description": "Gère la soumission du formulaire de connexion, envoie un code 2FA, puis redirige selon le rôle.",
+                "operationId": "42f77e072dec84b0e1094cca1228298e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "remember": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection après authentification réussie"
+                    },
+                    "401": {
+                        "description": "Identifiants invalides"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Déconnecter l'utilisateur",
+                "description": "Déconnecte l'utilisateur et invalide la session.",
+                "operationId": "03afb12b342c2ea43bdc1de4f39e91a8",
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers la page d'accueil après déconnexion"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/confirm-password": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Afficher la page de confirmation du mot de passe",
+                "operationId": "cb7fda87fdc05e9ad0ee3b000f4febaa",
+                "responses": {
+                    "200": {
+                        "description": "Page de confirmation affichée"
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Confirmer le mot de passe de l'utilisateur",
+                "description": "Valide le mot de passe actuel pour autoriser des actions sensibles.",
+                "operationId": "dc62efc6d3a9c874a5c5c974e0b69df4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "current_password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers la page protégée (ex : dashboard) en cas de succès"
+                    },
+                    "422": {
+                        "description": "Validation échouée (mot de passe incorrect)"
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/email/verification-notification": {
+            "post": {
+                "tags": [
+                    "Email Verification"
+                ],
+                "summary": "Envoyer une nouvelle notification de vérification d'email",
+                "description": "Envoie un email de vérification si l'email de l'utilisateur n'est pas encore vérifié.",
+                "operationId": "7c01a354a5960445207bc5d2f17d547e",
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers le dashboard si l'email est déjà vérifié"
+                    },
+                    "200": {
+                        "description": "Retour arrière avec statut d'envoi du lien de vérification"
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/email/verify": {
+            "get": {
+                "tags": [
+                    "Email Verification"
+                ],
+                "summary": "Afficher la page de demande de vérification d'email",
+                "description": "Affiche la page demandant à l'utilisateur de vérifier son email, ou redirige vers le dashboard si déjà vérifié.",
+                "operationId": "4b827d276f46c16e5fc96596a67d53cd",
+                "responses": {
+                    "200": {
+                        "description": "Page de vérification affichée"
+                    },
+                    "302": {
+                        "description": "Redirection vers le dashboard si email déjà vérifié"
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/reset-password": {
+            "get": {
+                "tags": [
+                    "Mot de passe"
+                ],
+                "summary": "Afficher le formulaire de réinitialisation du mot de passe",
+                "description": "Affiche la page pour saisir un nouveau mot de passe via un token reçu par email.",
+                "operationId": "fb7eeb9d6725e1fcaef8bd84200e5a9b",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "Token de réinitialisation du mot de passe",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Formulaire affiché"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Mot de passe"
+                ],
+                "summary": "Traiter la réinitialisation du mot de passe",
+                "description": "Valide et met à jour le nouveau mot de passe de l'utilisateur.",
+                "operationId": "24b1c68468bf984b8806908f211f3827",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "reset_token_123"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newStrongPassword123!"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newStrongPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers la page de connexion après succès"
+                    },
+                    "422": {
+                        "description": "Erreur de validation (ex: token invalide ou mot de passe non confirmé)"
+                    }
+                }
+            }
+        },
+        "/user/password": {
+            "post": {
+                "tags": [
+                    "Mot de passe"
+                ],
+                "summary": "Mettre à jour le mot de passe de l'utilisateur",
+                "description": "Permet à l'utilisateur connecté de changer son mot de passe en validant l'ancien.",
+                "operationId": "8cd241c54bb95989f1a3ab7235527e98",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "oldPassword123"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newStrongPassword456!"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newStrongPassword456!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Retour à la page précédente avec confirmation de mise à jour"
+                    },
+                    "422": {
+                        "description": "Erreur de validation (ex: mot de passe actuel incorrect, confirmation invalide)"
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/forgot-password": {
+            "get": {
+                "tags": [
+                    "Mot de passe"
+                ],
+                "summary": "Afficher le formulaire de demande de lien de réinitialisation du mot de passe",
+                "description": "Affiche la page permettant à l'utilisateur de saisir son email pour recevoir un lien de réinitialisation.",
+                "operationId": "488381143077833cec81be2e4235c339",
+                "responses": {
+                    "200": {
+                        "description": "Formulaire affiché"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Mot de passe"
+                ],
+                "summary": "Envoyer un lien de réinitialisation du mot de passe",
+                "description": "Valide l'email et envoie un lien de réinitialisation si l'adresse est valide.",
+                "operationId": "888e4aa5b202b170b9fe831da90048c6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Retour arrière avec message de succès ou d'erreur"
+                    },
+                    "422": {
+                        "description": "Erreur de validation (ex: email invalide)"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Enregistrement d'un nouveau patient",
+                "operationId": "573de1fed352c1205a32c4d1b9877375",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "phone_number"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jean Dupont"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jean@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "0612345678"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers le dashboard après enregistrement"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        },
+        "/register/medecin": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Enregistrement d'un nouveau médecin",
+                "operationId": "99df6c54e4f5d2d3903ce045d7f47fe7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "phone_number"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Dr. Marie Curie"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "marie.curie@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "0612345678"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers la route de redirection par rôle"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        },
+        "/email/verify/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Valider l'adresse email de l'utilisateur (vérification email)",
+                "operationId": "defff15cf49d15083f3d7d2284955a29",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de l'utilisateur",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "Hash de vérification email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers le dashboard avec paramètre 'verified=1' en cas de succès"
+                    },
+                    "403": {
+                        "description": "Non autorisé, si l'email a déjà été vérifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/creneaux/{service_id}": {
+            "get": {
+                "tags": [
+                    "Créneaux"
+                ],
+                "summary": "Lister les créneaux disponibles pour un service donné",
+                "description": "Retourne les créneaux disponibles, avec un traitement spécial si le paramètre urgent=1 est présent.",
+                "operationId": "bcacd17f052cc3a2a35e7749b806ad10",
+                "parameters": [
+                    {
+                        "name": "service_id",
+                        "in": "path",
+                        "description": "Identifiant du service",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "urgent",
+                        "in": "query",
+                        "description": "Si égal à 1, filtre les créneaux pour les 24 prochaines heures",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des créneaux disponibles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "time": {
+                                                "type": "string",
+                                                "example": "09:00"
+                                            },
+                                            "end_time": {
+                                                "type": "string",
+                                                "example": "10:00"
+                                            },
+                                            "service_id": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Service non trouvé"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/creneaux-disponibles/{serviceId}": {
+            "get": {
+                "tags": [
+                    "Créneaux"
+                ],
+                "summary": "Lister les créneaux disponibles pour un service",
+                "description": "Retourne les créneaux disponibles filtrés selon l'urgence (paramètre urgent=1).",
+                "operationId": "73384126fa31411e6f915cba166a61ab",
+                "parameters": [
+                    {
+                        "name": "serviceId",
+                        "in": "path",
+                        "description": "ID du service médical",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "urgent",
+                        "in": "query",
+                        "description": "Si 1, affiche uniquement les créneaux des prochaines 24h",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des créneaux disponibles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "time": {
+                                                "type": "string",
+                                                "example": "09:00"
+                                            },
+                                            "service_id": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/medecin/dashboard": {
+            "get": {
+                "tags": [
+                    "Médecin"
+                ],
+                "summary": "Afficher le tableau de bord du médecin",
+                "description": "Retourne la vue du tableau de bord pour un médecin authentifié.",
+                "operationId": "b0337369393f6d0122e845da365ed7b2",
+                "responses": {
+                    "200": {
+                        "description": "Vue du tableau de bord affichée avec succès."
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié."
+                    },
+                    "403": {
+                        "description": "Accès refusé. L'utilisateur n'est pas médecin."
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/profile": {
+            "get": {
+                "tags": [
+                    "Profil"
+                ],
+                "summary": "Afficher les informations du profil de l'utilisateur",
+                "description": "Retourne les données du profil de l'utilisateur authentifié.",
+                "operationId": "8cfcc99d8d1aa366314cd8abf9cd9c9a",
+                "responses": {
+                    "200": {
+                        "description": "Formulaire du profil affiché avec succès"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Profil"
+                ],
+                "summary": "Supprimer le compte utilisateur",
+                "description": "Supprime définitivement le compte de l'utilisateur après vérification du mot de passe.",
+                "operationId": "1d6a5c6489e35a763aa97ebef12863ce",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "motdepasse123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Utilisateur déconnecté et redirigé vers la page d'accueil"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    },
+                    "422": {
+                        "description": "Mot de passe incorrect ou validation échouée"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Profil"
+                ],
+                "summary": "Mettre à jour les informations du profil",
+                "description": "Met à jour les informations du profil de l'utilisateur authentifié. Si l'email change, la vérification est réinitialisée.",
+                "operationId": "354f5b23296bed4036564563e7423f43",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Ayoub Berhili"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ayoub@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Profil mis à jour et redirigé vers la page de profil"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/2fa/enable": {
+            "post": {
+                "tags": [
+                    "2FA"
+                ],
+                "summary": "Activer la validation à deux facteurs",
+                "description": "Valide le code 6 chiffres envoyé par l'utilisateur et active 2FA.",
+                "operationId": "07e594577c5c9d0dc9b95dcf10d8581c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers le dashboard avec succès"
+                    },
+                    "422": {
+                        "description": "Code invalide ou erreur de validation"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/2fa/disable": {
+            "post": {
+                "tags": [
+                    "2FA"
+                ],
+                "summary": "Désactiver la validation à deux facteurs",
+                "description": "Désactive 2FA pour l'utilisateur authentifié.",
+                "operationId": "13efff48daa375b5508e0c8eec35e1dd",
+                "responses": {
+                    "302": {
+                        "description": "Redirection vers le dashboard avec succès"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/2fa/setup": {
+            "get": {
+                "tags": [
+                    "2FA"
+                ],
+                "summary": "Afficher la page de configuration 2FA",
+                "description": "Retourne la vue avec QR code et clé secrète pour configurer Google Authenticator.",
+                "operationId": "67cbab6845dbce7b84b101789e210d23",
+                "responses": {
+                    "200": {
+                        "description": "Page de configuration 2FA affichée"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/enable2fa": {
+            "get": {
+                "tags": [
+                    "Utilisateur"
+                ],
+                "summary": "Afficher la page d'activation 2FA",
+                "description": "Génère une clé secrète 2FA, crée un QR code inline et retourne la vue d'activation pour l'utilisateur connecté.",
+                "operationId": "0f9ea3ca413b0e3c28e62339f4186867",
+                "responses": {
+                    "200": {
+                        "description": "Page d'activation 2FA affichée avec QR code"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/rendez-vous-guest": {
+            "get": {
+                "tags": [
+                    "Visiteur"
+                ],
+                "summary": "Afficher le formulaire de prise de rendez-vous pour visiteurs",
+                "description": "Retourne la vue du formulaire pour les visiteurs non authentifiés.",
+                "operationId": "570cc8b8fb5c1fb47d6861434483d680",
+                "responses": {
+                    "200": {
+                        "description": "Formulaire affiché avec succès"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Bearer token for authentication",
+                "name": "Authorization",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin",
+            "description": "Admin"
+        },
+        {
+            "name": "Authentification",
+            "description": "Authentification"
+        },
+        {
+            "name": "Email Verification",
+            "description": "Email Verification"
+        },
+        {
+            "name": "Mot de passe",
+            "description": "Mot de passe"
+        },
+        {
+            "name": "Créneaux",
+            "description": "Créneaux"
+        },
+        {
+            "name": "Médecin",
+            "description": "Médecin"
+        },
+        {
+            "name": "Profil",
+            "description": "Profil"
+        },
+        {
+            "name": "2FA",
+            "description": "2FA"
+        },
+        {
+            "name": "Utilisateur",
+            "description": "Utilisateur"
+        },
+        {
+            "name": "Visiteur",
+            "description": "Visiteur"
+        }
+    ]
+}

@@ -15,6 +15,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
+    /**
+ * @OA\Get(
+ *     path="/login",
+ *     summary="Afficher la page de connexion",
+ *     tags={"Authentification"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Page de connexion affichée"
+ *     )
+ * )
+ */
     public function create(): View
     {
         return view('auth.login');
@@ -23,6 +34,31 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    /**
+ * @OA\Post(
+ *     path="/login",
+ *     summary="Authentifier un utilisateur",
+ *     description="Gère la soumission du formulaire de connexion, envoie un code 2FA, puis redirige selon le rôle.",
+ *     tags={"Authentification"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"email","password"},
+ *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+ *             @OA\Property(property="password", type="string", format="password", example="password123"),
+ *             @OA\Property(property="remember", type="boolean", example=false)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=302,
+ *         description="Redirection après authentification réussie"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Identifiants invalides"
+ *     )
+ * )
+ */
 public function store(LoginRequest $request): RedirectResponse
 {
     $request->authenticate();  // Authentifie l'utilisateur
@@ -50,6 +86,23 @@ public function store(LoginRequest $request): RedirectResponse
     /**
      * Destroy an authenticated session.
      */
+    /**
+ * @OA\Post(
+ *     path="/logout",
+ *     summary="Déconnecter l'utilisateur",
+ *     description="Déconnecte l'utilisateur et invalide la session.",
+ *     tags={"Authentification"},
+ *     security={{"sessionAuth": {}}},
+ *     @OA\Response(
+ *         response=302,
+ *         description="Redirection vers la page d'accueil après déconnexion"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Non authentifié"
+ *     )
+ * )
+ */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

@@ -52,7 +52,34 @@ class TwoFactorController extends Controller
 
         return $writer->writeString($qrUrl);
     }
-
+/**
+ * @OA\Post(
+ *     path="/2fa/enable",
+ *     summary="Activer la validation à deux facteurs",
+ *     description="Valide le code 6 chiffres envoyé par l'utilisateur et active 2FA.",
+ *     tags={"2FA"},
+ *     security={{"sessionAuth": {}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"code"},
+ *             @OA\Property(property="code", type="string", example="123456")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=302,
+ *         description="Redirection vers le dashboard avec succès"
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Code invalide ou erreur de validation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Non authentifié"
+ *     )
+ * )
+ */
     public function enable(Request $request)
     {
         try {
@@ -79,7 +106,23 @@ class TwoFactorController extends Controller
             return back()->withErrors(['code' => 'Erreur lors de l\'activation de 2FA.']);
         }
     }
-
+/**
+ * @OA\Post(
+ *     path="/2fa/disable",
+ *     summary="Désactiver la validation à deux facteurs",
+ *     description="Désactive 2FA pour l'utilisateur authentifié.",
+ *     tags={"2FA"},
+ *     security={{"sessionAuth": {}}},
+ *     @OA\Response(
+ *         response=302,
+ *         description="Redirection vers le dashboard avec succès"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Non authentifié"
+ *     )
+ * )
+ */
     public function disable()
     {
         try {
@@ -99,7 +142,23 @@ class TwoFactorController extends Controller
             return back()->withErrors(['error' => 'Erreur lors de la désactivation de 2FA.']);
         }
     }
-
+/**
+ * @OA\Get(
+ *     path="/2fa/setup",
+ *     summary="Afficher la page de configuration 2FA",
+ *     description="Retourne la vue avec QR code et clé secrète pour configurer Google Authenticator.",
+ *     tags={"2FA"},
+ *     security={{"sessionAuth": {}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Page de configuration 2FA affichée"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Non authentifié"
+ *     )
+ * )
+ */
     public function show2faSetup()
     {
         try {

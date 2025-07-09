@@ -18,7 +18,7 @@
         </div>
          <!-- Phone number -->
         <div class="mt-4">
-            <x-input-label for="phone_number" :value="__('Phone Number (e.g., +2126XXXXXXXX or 06XXXXXXXX)')" /> {{-- Changé "Email" en "Phone Number" --}}
+            <x-input-label for="phone_number" :value="__('Phone Number (e.g., 0611223344regg)')" /> {{-- Changé "Email" en "Phone Number" --}}
             <x-text-input
                 id="phone_number"                               {{-- Changé "email" en "phone_number" --}}
                 class="block mt-1 w-full"
