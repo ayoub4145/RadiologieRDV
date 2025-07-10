@@ -16,11 +16,58 @@ use PragmaRX\Google2FA\Google2FA;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisiteurController;
-Route::get('/rendez-vous-guest', [VisiteurController::class,'index'])->name('rendez-vous-guest');
+
+// Page formulaire (GET)
+Route::get('/rendez-vous-guest', [VisiteurController::class, 'index'])->name('visiteur.rendezvous.index');
+
+// Soumission du formulaire (POST)
 Route::post('/rendez-vous-guest', [VisiteurController::class, 'store'])->name('visiteur.rendezvous.store');
 
+// Liste des rendez-vous pour un visiteur (GET via AJAX)
+Route::get('/guest-mes-rendezvous', [VisiteurController::class, 'mesRendezVous'])->name('visiteur.rendezvous.mes');
+
+// Annulation d’un rendez-vous visiteur (facultatif si tu le gères en JS)
+Route::delete('/annuler-rendezvous/{id}', function ($id) {
+    $rdv = \App\Models\RendezVous::whereNull('user_id')->findOrFail($id);
+    $rdv->delete();
+    return response()->json(['message' => 'Rendez-vous annulé']);
+})->name('visiteur.rendezvous.annuler');
 
 
+    Route::get('/creneaux/{serviceId}', function(Request $request, $serviceId) {
+        $isUrgent = (int) $request->query('urgent', 0); // 0 ou 1
+
+        $creneaux = [];
+
+        // Définir plage selon urgence
+        $startDate = Carbon::now();
+        $endDate = $isUrgent ? $startDate->copy()->addDay() : $startDate->copy()->addDays(60);
+
+        $heureDebutJour = 9;
+        $heureFinJour = 17;
+        $dureeCreneauMinutes = 60;
+
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            for ($heure = $heureDebutJour; $heure < $heureFinJour; $heure++) {
+                $debut = $date->copy()->setHour($heure)->setMinute(0)->setSecond(0);
+                $fin = $debut->copy()->addMinutes($dureeCreneauMinutes);
+
+                // Ne proposer que les créneaux futurs (supérieurs à maintenant)
+                if ($debut->lt(Carbon::now())) {
+                    continue;
+                }
+
+                $creneaux[] = [
+                    'id' => $date->format('Ymd') . $heure, // id unique généré
+                    'date' => $date->toDateString(),
+                    'time' => $debut->format('H:i'),
+                    'end_time' => $fin->format('H:i'),
+                ];
+            }
+        }
+
+        return response()->json($creneaux);
+    });
 
 
 
@@ -93,41 +140,6 @@ Route::get('/dashboard', [RendezVousController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware(['auth','verified','2fa'])->group(function () {
-    Route::get('/creneaux/{serviceId}', function(Request $request, $serviceId) {
-        $isUrgent = (int) $request->query('urgent', 0); // 0 ou 1
-
-        $creneaux = [];
-
-        // Définir plage selon urgence
-        $startDate = Carbon::now();
-        $endDate = $isUrgent ? $startDate->copy()->addDay() : $startDate->copy()->addDays(60);
-
-        $heureDebutJour = 9;
-        $heureFinJour = 17;
-        $dureeCreneauMinutes = 60;
-
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            for ($heure = $heureDebutJour; $heure < $heureFinJour; $heure++) {
-                $debut = $date->copy()->setHour($heure)->setMinute(0)->setSecond(0);
-                $fin = $debut->copy()->addMinutes($dureeCreneauMinutes);
-
-                // Ne proposer que les créneaux futurs (supérieurs à maintenant)
-                if ($debut->lt(Carbon::now())) {
-                    continue;
-                }
-
-                $creneaux[] = [
-                    'id' => $date->format('Ymd') . $heure, // id unique généré
-                    'date' => $date->toDateString(),
-                    'time' => $debut->format('H:i'),
-                    'end_time' => $fin->format('H:i'),
-                ];
-            }
-        }
-
-        return response()->json($creneaux);
-    });
-
     Route::get('/mes-rendezvous', [RendezVousController::class, 'mesRendezVous']);
     Route::delete('/annuler-rendezvous/{id}', [RendezVousController::class, 'annuler']);
     Route::post('/prendre-rdv', [RendezVousController::class, 'store'])->name('rendezvous.store');

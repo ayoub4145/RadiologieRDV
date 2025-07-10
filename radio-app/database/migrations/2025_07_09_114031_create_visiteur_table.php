@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('visiteur', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable(); // Assuming name is optional
+            $table->string('name')->nullable();
             $table->string('email')->unique()->nullable();
-            $table->string('telephone', 20)->nullable(); // Assuming telephone is a string
+            $table->string('telephone', 20)->nullable(); 
             $table->timestamps();
         });
     }
