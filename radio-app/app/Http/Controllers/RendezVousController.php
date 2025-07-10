@@ -64,11 +64,7 @@ public function store(Request $request)
         // 'visiteur_id'  => 'nullable|exists:visiteur,id',
     ]);
     // Vérifie si un visiteur avec cet email existe déjà
-    $visiteur = Visiteur::firstOrCreate(
-        ['email' => $request->email],
-        ['nom' => $request->nom]
-    );
-
+  
     $rendezVous = new RendezVous();
     $rendezVous->user_id     = Auth::id();
     $rendezVous->service_id  = $validated['service_id'];

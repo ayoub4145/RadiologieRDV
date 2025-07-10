@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('creneaux:rotate')->dailyAt('01:00'); // Tous les jours à 1h du matin
+         #Cela signifie que toutes les minutes, Laravel va vérifier s’il y a un rendez-vous exactement dans 24 heures, et s’il y en a, il envoie un mail.
+            $schedule->command('rendezvous:send-reminders')->everyMinute();
 
         // $schedule->command('inspire')->hourly();
     }
