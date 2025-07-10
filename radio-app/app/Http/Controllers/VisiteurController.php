@@ -26,6 +26,44 @@ class VisiteurController extends Controller
 
         return view('rendez-vous-guest',compact('services'));
     }
+     /**
+     * @OA\Post(
+     *     path="/rendez-vous-guest",
+     *     summary="Créer un rendez-vous pour un visiteur non authentifié",
+     *     tags={"Visiteur"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nom_visiteur","email_visiteur","service_id","date_heure"},
+     *             @OA\Property(property="nom_visiteur", type="string", example="Jean Dupont"),
+     *             @OA\Property(property="telephone_visiteur", type="string", example="0612345678"),
+     *             @OA\Property(property="email_visiteur", type="string", format="email", example="jean.dupont@mail.com"),
+     *             @OA\Property(property="service_id", type="integer", example=1),
+     *             @OA\Property(property="date_heure", type="string", format="date-time", example="2025-07-10T15:00:00"),
+     *             @OA\Property(property="commentaire", type="string", example="Besoin d'un rendez-vous rapide."),
+     *             @OA\Property(property="is_urgent", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Rendez-vous enregistré avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Rendez-vous enregistré avec succès."),
+     *             @OA\Property(property="rendezVous", type="object",
+     *                 @OA\Property(property="id", type="integer", example=123),
+     *                 @OA\Property(property="visiteur_id", type="integer", example=45),
+     *                 @OA\Property(property="service_id", type="integer", example=1),
+     *                 @OA\Property(property="date_heure", type="string", format="date-time", example="2025-07-10T15:00:00"),
+     *                 @OA\Property(property="commentaire", type="string", example="Besoin d'un rendez-vous rapide."),
+     *                 @OA\Property(property="is_urgent", type="boolean", example=true),
+     *                 @OA\Property(property="created_at", type="string", format="date-time"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation échouée")
+     * )
+     */
 public function store(Request $request)
 {
     // Validation des données
@@ -64,7 +102,34 @@ public function store(Request $request)
     ]);
 }
 
-
+ /**
+     * @OA\Get(
+     *     path="/guest-mes-rendezvous",
+     *     summary="Lister les rendez-vous d'un visiteur par email",
+     *     tags={"Visiteur"},
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="Email du visiteur",
+     *         required=true,
+     *         @OA\Schema(type="string", format="email", example="jean.dupont@mail.com")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste des rendez-vous",
+     *         @OA\JsonContent(type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer", example=123),
+     *                 @OA\Property(property="date", type="string", example="10/07/2025"),
+     *                 @OA\Property(property="time", type="string", example="15:00"),
+     *                 @OA\Property(property="service_name", type="string", example="Radiologie")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation échouée"),
+     *     @OA\Response(response=404, description="Visiteur non trouvé")
+     * )
+     */
     public function mesRendezVous(Request $request)
     {
        $request->validate([

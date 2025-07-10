@@ -583,7 +583,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "sessionAuth": []
                     }
                 ]
             }
@@ -866,6 +866,229 @@
                 ]
             }
         },
+        "/prendre-rdv": {
+            "post": {
+                "tags": [
+                    "RendezVous"
+                ],
+                "summary": "Prendre un nouveau rendez-vous",
+                "description": "Crée un rendez-vous pour l'utilisateur authentifié avec un service, une date, etc.",
+                "operationId": "e01c750d2472446ddbccf5a8c81487b7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "service_id",
+                                    "date_heure"
+                                ],
+                                "properties": {
+                                    "service_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "date_heure": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2025-07-15T14:00:00"
+                                    },
+                                    "commentaire": {
+                                        "type": "string",
+                                        "example": "Préférence pour le matin"
+                                    },
+                                    "is_urgent": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "nom": {
+                                        "type": "string",
+                                        "example": "Jean Dupont"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jean.dupont@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rendez-vous enregistré avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "rendezVous": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "service_id": {
+                                                    "type": "integer"
+                                                },
+                                                "date_heure": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "is_urgent": {
+                                                    "type": "boolean"
+                                                },
+                                                "commentaire": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/dashboard": {
+            "get": {
+                "tags": [
+                    "RendezVous"
+                ],
+                "summary": "Afficher la page dashboard avec la liste des services",
+                "operationId": "b8bd5a51f0d0ca7b65804f996878518a",
+                "responses": {
+                    "200": {
+                        "description": "Page dashboard retournée avec succès"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/mes-rendezvous": {
+            "get": {
+                "tags": [
+                    "RendezVous"
+                ],
+                "summary": "Récupérer la liste des rendez-vous de l'utilisateur",
+                "operationId": "bb0d26a87ba15b048f89c266275e318b",
+                "responses": {
+                    "200": {
+                        "description": "Liste JSON des rendez-vous",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "example": "15/07/2025"
+                                            },
+                                            "time": {
+                                                "type": "string",
+                                                "example": "14:00"
+                                            },
+                                            "service_name": {
+                                                "type": "string",
+                                                "example": "Consultation générale"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
+        "/annuler-rendezvous/{id}": {
+            "delete": {
+                "tags": [
+                    "RendezVous"
+                ],
+                "summary": "Annuler un rendez-vous",
+                "description": "Supprime un rendez-vous appartenant à l'utilisateur authentifié.",
+                "operationId": "f0553b255bb6382c33f8b63099b6e94d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du rendez-vous à annuler",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rendez-vous annulé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Rendez-vous annulé avec succès"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Rendez-vous non trouvé"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sessionAuth": []
+                    }
+                ]
+            }
+        },
         "/2fa/enable": {
             "post": {
                 "tags": [
@@ -990,6 +1213,181 @@
                         "description": "Formulaire affiché avec succès"
                     }
                 }
+            },
+            "post": {
+                "tags": [
+                    "Visiteur"
+                ],
+                "summary": "Créer un rendez-vous pour un visiteur non authentifié",
+                "operationId": "37d6838aba5be89a484e668792936911",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nom_visiteur",
+                                    "email_visiteur",
+                                    "service_id",
+                                    "date_heure"
+                                ],
+                                "properties": {
+                                    "nom_visiteur": {
+                                        "type": "string",
+                                        "example": "Jean Dupont"
+                                    },
+                                    "telephone_visiteur": {
+                                        "type": "string",
+                                        "example": "0612345678"
+                                    },
+                                    "email_visiteur": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jean.dupont@mail.com"
+                                    },
+                                    "service_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "date_heure": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2025-07-10T15:00:00"
+                                    },
+                                    "commentaire": {
+                                        "type": "string",
+                                        "example": "Besoin d'un rendez-vous rapide."
+                                    },
+                                    "is_urgent": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rendez-vous enregistré avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Rendez-vous enregistré avec succès."
+                                        },
+                                        "rendezVous": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "visiteur_id": {
+                                                    "type": "integer",
+                                                    "example": 45
+                                                },
+                                                "service_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "date_heure": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-07-10T15:00:00"
+                                                },
+                                                "commentaire": {
+                                                    "type": "string",
+                                                    "example": "Besoin d'un rendez-vous rapide."
+                                                },
+                                                "is_urgent": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation échouée"
+                    }
+                }
+            }
+        },
+        "/guest-mes-rendezvous": {
+            "get": {
+                "tags": [
+                    "Visiteur"
+                ],
+                "summary": "Lister les rendez-vous d'un visiteur par email",
+                "operationId": "8e41ef2c453d4bbf41a02617418fd7ec",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email du visiteur",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "jean.dupont@mail.com"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des rendez-vous",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 123
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "example": "10/07/2025"
+                                            },
+                                            "time": {
+                                                "type": "string",
+                                                "example": "15:00"
+                                            },
+                                            "service_name": {
+                                                "type": "string",
+                                                "example": "Radiologie"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation échouée"
+                    },
+                    "404": {
+                        "description": "Visiteur non trouvé"
+                    }
+                }
             }
         }
     },
@@ -1031,6 +1429,10 @@
         {
             "name": "Profil",
             "description": "Profil"
+        },
+        {
+            "name": "RendezVous",
+            "description": "RendezVous"
         },
         {
             "name": "2FA",
