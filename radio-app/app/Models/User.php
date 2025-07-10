@@ -92,6 +92,11 @@ public function setGoogle2faSecretAttribute($value)
 {
     $this->attributes['google2fa_secret'] = encrypt($value);
 }
+public function routeNotificationForTwilio()
+{
+    return $this->telephone; // doit être au format international, ex: +2126xxxxxxxx
+}
+
 
 
 }

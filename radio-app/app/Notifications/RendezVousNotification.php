@@ -6,6 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\Twilio\TwilioSmsMessage;
+use App\Models\RendezVous;
 
 class RendezVousNotification extends Notification
 {
@@ -28,7 +30,7 @@ class RendezVousNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail','twilio'];
     }
 
     /**
@@ -60,5 +62,10 @@ class RendezVousNotification extends Notification
         return [
             //
         ];
+    }
+    public function toTwilio($notifiable)
+    {
+        return (new TwilioSmsMessage())
+            ->content("Rappel : Vous avez un RDV le " . $this->rendezVous->date_heure->format('d/m/Y H:i') . " pour le service " . $this->rendezVous->service->service_name);
     }
 }

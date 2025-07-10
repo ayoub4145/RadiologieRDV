@@ -15,4 +15,9 @@ class Visiteur extends Model
     {
         return $this->hasMany(RendezVous::class);
     }
+    public function routeNotificationForTwilio()
+{
+    return $this->telephone; // doit être au format international, ex: +2126xxxxxxxx
+}
+
 }
