@@ -16,6 +16,17 @@ use PragmaRX\Google2FA\Google2FA;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisiteurController;
+use App\Http\Controllers\sendSMSController;
+
+Route::get('/send-sms', [sendSMSController::class, 'send'])->name('send.sms');
+
+
+
+
+
+
+
+
 
 // Page formulaire (GET)
 Route::get('/rendez-vous-guest', [VisiteurController::class, 'index'])->name('visiteur.rendezvous.index');

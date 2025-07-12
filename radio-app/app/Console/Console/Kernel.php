@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
          #Cela signifie que toutes les minutes, Laravel va vérifier s’il y a un rendez-vous exactement dans 24 heures, et s’il y en a, il envoie un mail.
-            $schedule->command('rendezvous:send-reminders')->everyMinute();
+            $schedule->command('app:send-rendezvous-reminders')->everyMinute();
 
         // $schedule->command('inspire')->hourly();
     }

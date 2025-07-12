@@ -27,33 +27,34 @@ class SendRendezVousReminders extends Command
      */
     public function handle()
     {
-        //Carbon::now() → récupère la date et l'heure actuelles.
-        //addDay() → ajoute 1 jour (24 heures) à maintenant.
         $now = Carbon::now();
         $nextDay = $now->copy()->addDay();
 
-        // Trouver les RDVs qui ont lieu entre maintenant+23h59 et maintenant+24h01
-        // Cette requête cherche tous les rendez-vous planifiés exactement dans la minute qui correspond à “demain à la même heure”.
-        // startOfMinute() et endOfMinute() encadrent précisément la minute pour éviter les doublons ou les oublis.
-
-        $rendezvous = RendezVous::whereBetween('date_heure', [$nextDay->copy()->startOfMinute(), $nextDay->copy()->endOfMinute()])
+        // Find all appointments scheduled for the next day
+        $rendezvous = RendezVous::whereDate('date_heure', $nextDay->toDateString())
             ->with(['user', 'visiteur', 'service'])
             ->get();
-        //Pour chaque RDV récupéré :
-//S'il a un user (compte connecté) → envoie une notification via Laravel Notifications.
-//Sinon, s'il a un visiteur avec une adresse email → même chose.
+
+        $notificationsSent = 0;
         foreach ($rendezvous as $rdv) {
             if ($rdv->user) {
+                $this->info("Sending notification to user ID {$rdv->user->id} for appointment ID {$rdv->id}");
                 $rdv->user->notify(new RendezVousNotification($rdv));
-                $this->info("Notification envoyée à user ID {$rdv->user->id} pour RDV ID {$rdv->id}");
-            } elseif ($rdv->visiteur && !empty($rdv->visiteur->email)) {
+                if ($rdv->visiteur && !empty($rdv->visiteur->email)) {
+                    $this->info("Sending notification to visitor with email {$rdv->visiteur->email} for appointment ID {$rdv->id}");
+                    $rdv->visiteur->notify(new RendezVousNotification($rdv));
+                }
+                $this->info("Notification sent to user ID {$rdv->user->id} for appointment ID {$rdv->id}");
+                $notificationsSent++;
+            }
+            if ($rdv->visiteur && !empty($rdv->visiteur->email)) {
                 $rdv->visiteur->notify(new RendezVousNotification($rdv));
-                $this->info("Notification envoyée à visiteur ID {$rdv->visiteur->id} pour RDV ID {$rdv->id}");
+                $this->info("Notification sent to visitor ID {$rdv->visiteur->id} for appointment ID {$rdv->id}");
+                $notificationsSent++;
             }
         }
-       # Affiche un message dans le terminal pour indiquer que les notifications ont bien été envoyées.
 
-        $this->info('Rappels envoyés.');
+        $this->info("Reminders sent. Total notifications: {$notificationsSent}");
         return 0;
     }
 }

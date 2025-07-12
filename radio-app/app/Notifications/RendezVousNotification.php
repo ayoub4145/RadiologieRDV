@@ -30,7 +30,7 @@ class RendezVousNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail','twilio'];
+        return ['mail'];
     }
 
     /**
@@ -38,8 +38,9 @@ class RendezVousNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $date = $this->rendezVous->date_heure->format('d/m/Y');
-        $heure = $this->rendezVous->date_heure->format('H:i');
+        $dateTime = \Carbon\Carbon::parse($this->rendezVous->date_heure);
+        $date = $dateTime->format('d/m/Y');
+        $heure = $dateTime->format('H:i');
         $service = $this->rendezVous->service->service_name;
 
         return (new MailMessage)
@@ -48,8 +49,7 @@ class RendezVousNotification extends Notification
                     ->line("Vous avez un rendez-vous prévu le $date à $heure.")
                     ->line("Service : $service")
                     ->line('Merci de bien vouloir vous préparer à temps.')
-                    ->salutation('Cordialement,')
-                    ->salutation(config('app.name'));
+                    ->salutation('Cordialement, ' . config('app.name'));
     }
 
     /**
