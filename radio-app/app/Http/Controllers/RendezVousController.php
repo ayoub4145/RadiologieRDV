@@ -9,7 +9,9 @@ use App\Models\Service;
 use App\Models\Creneaux;
 use App\Models\Visiteur;
 use Carbon\Carbon;
+use App\Events\RendezVousCreated;
 class RendezVousController extends Controller
+
 
 {
 /**
@@ -64,7 +66,7 @@ public function store(Request $request)
         // 'visiteur_id'  => 'nullable|exists:visiteur,id',
     ]);
     // Vérifie si un visiteur avec cet email existe déjà
-  
+
     $rendezVous = new RendezVous();
     $rendezVous->user_id     = Auth::id();
     $rendezVous->service_id  = $validated['service_id'];
@@ -74,6 +76,7 @@ public function store(Request $request)
     // $rendezVous->statut      = $rendezVous->is_urgent ? 'en_attente' : 'confirmé';
     // $rendezVous->visiteur_id = $validated['visiteur_id'] ?? $visiteur->id;
     $rendezVous->save();
+event(new RendezVousCreated($rendezVous));
 
     // Si c'est une requête AJAX ou JSON, répondre en JSON
     if ($request->wantsJson() || $request->ajax()) {

@@ -18,7 +18,28 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisiteurController;
 use App\Http\Controllers\sendSMSController;
 
-Route::get('/send-sms', [sendSMSController::class, 'send'])->name('send.sms');
+
+Route::get('/test-notif-urgent', function () {
+    $rendezVous = \App\Models\RendezVous::with(['user', 'visiteur'])->first();
+
+    $admin = new class {
+        use \Illuminate\Notifications\Notifiable;
+        public function routeNotificationForMail() {
+            return 'mlouki.server@gmail.com';
+        }
+        public function routeNotificationForVonage() {
+            return '+212680475084'; // numéro SMS admin en format international
+        }
+    };
+
+    \Illuminate\Support\Facades\Notification::send($admin, new \App\Notifications\RendezVousUrgentNotification($rendezVous));
+
+    return 'Notification envoyée !';
+});
+
+
+
+
 
 
 

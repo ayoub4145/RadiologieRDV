@@ -6,6 +6,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Models\RendezVous;
+use App\Observers\RendezVousObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        \App\Events\RendezVousCreated::class => [
+        \App\Listeners\NotifyAdminRendezVousUrgent::class,
+    ],
     ];
 
     /**
@@ -25,7 +30,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        RendezVous::observe(RendezVousObserver::class);
+
     }
 
     /**

@@ -67,7 +67,7 @@ public function store(LoginRequest $request): RedirectResponse
     // Génére et envoie le code 2FA
     $user = $request->user();
     $user->generateTwoFactorCode(); // à définir dans User.php si pas encore fait
-    $user->notify(new TwoFactorCodeNotification());
+    // $user->notify(new TwoFactorCodeNotification());
 
     // Supprime toute session 2fa passée
     session()->forget('2fa_passed');
