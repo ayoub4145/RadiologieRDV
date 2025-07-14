@@ -96,6 +96,10 @@ public function routeNotificationForTwilio()
 {
     return $this->telephone; // doit être au format international, ex: +2126xxxxxxxx
 }
+public function routeNotificationForVonage()
+{
+    return $this->phone_number; // suppose que tu as une colonne phone_number
+}
 
 
 

@@ -89,7 +89,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone_number' => ['required', 'string','max:10'], // Validation pour le numéro de téléphone
+            'phone_number' => ['required', 'string','max:15'], // Validation pour le numéro de téléphone
         ]);
 
 
@@ -141,7 +141,7 @@ class RegisteredUserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|confirmed|min:8',
-                'phone_number'=>'required|string|max:10', // Validation pour le numéro de téléphone
+                'phone_number'=>'required|string|max:15', // Validation pour le numéro de téléphone
             ]);
 
             $user = User::create([

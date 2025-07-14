@@ -19,5 +19,9 @@ class Visiteur extends Model
 {
     return $this->telephone; // doit être au format international, ex: +2126xxxxxxxx
 }
+    public function routeNotificationForVonage()
+    {
+        return $this->telephone; // suppose que tu as une colonne telephone
+    }
 
 }

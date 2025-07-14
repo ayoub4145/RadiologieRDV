@@ -39,11 +39,14 @@ return [
 //     'token' => env('TWILIO_TOKEN'),
 //     'from' => env('TWILIO_FROM'),
 // ]   ,
-//     'vonage' => [
-//     'key' => env('VONAGE_KEY'),
-//     'secret' => env('VONAGE_SECRET'),
-//     'sms_from' => env('VONAGE_SMS_FROM'),
-// ],
+    'vonage' => [
+    'key' => env('VONAGE_KEY'),
+    'secret' => env('VONAGE_SECRET'),
+    'sms_from' => env('VONAGE_SMS_FROM'),
+
+],
+
+
 
 
 ];
