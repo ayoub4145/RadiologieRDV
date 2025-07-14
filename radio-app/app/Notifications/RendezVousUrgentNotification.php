@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\VonageMessage;
-
+use Illuminate\Support\Facades\Log;
 class RendezVousUrgentNotification extends Notification
 {
     use Queueable;
@@ -60,9 +60,17 @@ class RendezVousUrgentNotification extends Notification
 
     public function toVonage($notifiable)
     {
-        return (new VonageMessage)
-            ->content('⚠️ RDV URGENT : ' . $this->getNomPatient() . ' - ' . $this->getTelephone() . ' le ' . $this->rdv->date_heure);
-    }
+
+ $message = '⚠️ RDV URGENT : ' . $this->getNomPatient() . ' - ' . $this->getTelephone() . ' le ' . $this->rdv->date_heure;
+    $numero = $notifiable->routeNotificationForVonage();
+
+    Log::info('=== ENVOI SMS ===');
+    Log::info('Message: ' . $message);
+    Log::info('Destinataire: ' . $numero);
+    Log::info('Longueur message: ' . strlen($message));
+
+    return (new VonageMessage)
+        ->content($message);    }
 
     protected function getNomPatient()
     {

@@ -30,7 +30,7 @@ class RendezVousObserver
                 return 'mlouki.server@gmail.com';
             }
             public function routeNotificationForVonage() {
-                return '+212687520612'; // numéro SMS admin en format international
+                return '212687520612'; // numéro SMS admin en format international
             }
         };
 
