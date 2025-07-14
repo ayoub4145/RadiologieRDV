@@ -21,15 +21,68 @@
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Dashboard Admin",
-                "description": "Retourne la vue dashboard pour les admins connectés.",
+                "summary": "Afficher les rendez-vous urgents pour l'administrateur",
+                "description": "Retourne une liste de tous les rendez-vous urgents avec les utilisateurs et visiteurs associés. Accessible uniquement aux administrateurs connectés.",
                 "operationId": "ab8026b579f7e78aaa488b3477e4b1f2",
                 "responses": {
                     "200": {
-                        "description": "Succès"
+                        "description": "Liste des rendez-vous urgents",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "date_heure": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "is_urgent": {
+                                                "type": "boolean"
+                                            },
+                                            "user": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "visiteur": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "nom_visiteur": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "telephone": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Non authentifié"
+                    "302": {
+                        "description": "Redirection vers la page de connexion si l'utilisateur n'est pas admin ou non connecté"
                     }
                 },
                 "security": [

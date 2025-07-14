@@ -11,20 +11,40 @@ class AdminController extends Controller
     /**
  * @OA\Get(
  *     path="/admin/dashboard",
- *     summary="Dashboard Admin",
+ *     summary="Afficher les rendez-vous urgents pour l'administrateur",
+ *     description="Retourne une liste de tous les rendez-vous urgents avec les utilisateurs et visiteurs associés. Accessible uniquement aux administrateurs connectés.",
  *     tags={"Admin"},
- *     description="Retourne la vue dashboard pour les admins connectés.",
  *     security={{"sessionAuth": {}}},
  *     @OA\Response(
  *         response=200,
- *         description="Succès"
+ *         description="Liste des rendez-vous urgents",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 @OA\Property(property="id", type="integer"),
+ *                 @OA\Property(property="date_heure", type="string", format="date-time"),
+ *                 @OA\Property(property="is_urgent", type="boolean"),
+ *                 @OA\Property(property="user", type="object",
+ *                     @OA\Property(property="id", type="integer"),
+ *                     @OA\Property(property="name", type="string"),
+ *                     @OA\Property(property="email", type="string")
+ *                 ),
+ *                 @OA\Property(property="visiteur", type="object",
+ *                     @OA\Property(property="id", type="integer"),
+ *                     @OA\Property(property="nom_visiteur", type="string"),
+ *                     @OA\Property(property="email", type="string"),
+ *                     @OA\Property(property="telephone", type="string")
+ *                 )
+ *             )
+ *         )
  *     ),
  *     @OA\Response(
- *         response=401,
- *         description="Non authentifié"
+ *         response=302,
+ *         description="Redirection vers la page de connexion si l'utilisateur n'est pas admin ou non connecté"
  *     )
  * )
  */
+
 
     public function index()
     {
@@ -41,9 +61,6 @@ class AdminController extends Controller
         return view('admin.dashboard',compact('rdvUrgents'));
     }
 
-    public function showUrgentRendezvous()
-    {
-        return view('admin.dashboard', compact('rdvUrgents'));
-    }
+
 
 }
