@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RendezVous;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Schema;
+use App\Models\TypeInfo;
 class AdminController extends Controller
 {
     /**
@@ -63,27 +64,29 @@ class AdminController extends Controller
         // Logique pour afficher le tableau de bord de l'administrateur
         return view('admin.dashboard',compact('rdvUrgents', 'sections','type_infos'));
     }
-
     public function storeSectionData(Request $request)
-{
-    // Exemple de récupération des données du formulaire
-    $typeInfos = $request->input('type_infos', []);
-    $dynamicInputs = $request->input('dynamic_inputs', []);
+    {
 
-    // Ici, tu peux enregistrer les données dans la base selon ta logique métier
-    // Exemple : associer les infos dynamiques à une section
+    $sectionId = $request->input('section');
+    $inputs = $request->input('inputs', []);
 
-    // $sectionId = ... (à récupérer selon ton formulaire)
-    // $section = \App\Models\Section::find($sectionId);
-    // foreach ($typeInfos as $typeInfoId) {
-    //     // Enregistrer chaque typeInfo et sa valeur dynamique
-    //     $value = $dynamicInputs[$typeInfoId] ?? null;
-    //     // ... logique d'enregistrement ...
-    // }
+    // Créer une nouvelle entrée TypeInfo liée à la section
+    $typeInfo = new TypeInfo();
+    $typeInfo->section_id = $sectionId;
 
-    // Redirection avec message de succès
-    return redirect()->route('admin.dashboard')->with('success', 'Données de la section enregistrées avec succès.');
-}
+    // Affecter dynamiquement les champs si autorisés
+    foreach ($inputs as $key => $value) {
+        // Vérifie que la colonne existe dans la table type_infos
+        if (Schema::hasColumn('type_infos', $key)) {
+            $typeInfo->$key = $value;
+        }
+    }
+
+    $typeInfo->save();
+
+    return redirect()->route('admin.dashboard')->with('success', 'Données enregistrées avec succès.');
+
+    }
 
 
 }

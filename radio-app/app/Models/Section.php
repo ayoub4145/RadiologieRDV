@@ -10,6 +10,9 @@ class Section extends Model
 {
     /** @use HasFactory<\Database\Factories\SectionFactory> */
     use HasFactory;
+
+    protected $fillable = ['name', 'description'];
+
     public function typeInfos(){
         return $this->hasMany(TypeInfo::class);
     }
