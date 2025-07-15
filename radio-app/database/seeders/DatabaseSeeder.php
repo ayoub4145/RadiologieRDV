@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Section;
+use App\Models\TypeInfo;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,9 +21,20 @@ class DatabaseSeeder extends Seeder
                 ServiceSeeder::class,
                 RendezVousSeeder::class,
                 ServiceAvailabilitySeeder::class,
-                NotificationSeeder::class,
-                FeedbackSeeder::class,
     ]);
+            // Création de 4 sections fixes (Blog, Coordonnées, Actualités, Événements)
+        $sections = ['Blog', 'Coordonnées', 'Actualités', 'Articles','FAQ','temoignages','A propos','Services','Équipe'];
 
+        foreach ($sections as $nom) {
+            $section = Section::create([
+                'name' => $nom,
+                'description' => "Description de la section $nom",
+            ]);
+
+            // Crée aléatoirement 5 infos par section
+            TypeInfo::factory()->count(5)->create([
+                'section_id' => $section->id,
+            ]);
+        }
     }
 }
