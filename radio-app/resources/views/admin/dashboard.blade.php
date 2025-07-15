@@ -14,8 +14,102 @@
 <H1>Bonjour admin</H1>
 <p>Bienvenue sur le tableau de bord de l'administrateur.</p>
 <p>Vous pouvez gérer les rendez-vous, les utilisateurs et d'autres paramètres du système.</p>
+@if(isset($sections) && $sections->isNotEmpty())
+    <form action="{{ route('admin.storeSectionData') }}" method="POST">
+        @csrf
+        <label for="section">Sélectionner une section :</label>
+        <select name="section" id="section" class="form-select" onchange="fetchTypeInfos(this.value)">
+            <option value="">Sélectionner une section</option>
+            @foreach($sections as $section)
+                <option value="{{ $section->id }}">{{ $section->name }}</option>
+            @endforeach
+        </select>
+
+        <div id="typeInfosContainer" class="mt-3" style="display: none;">
+            <p>Veuillez cocher les informations associées :</p>
+            <div id="typeInfosCheckboxes">
+                <!-- Les cases à cocher seront ajoutées dynamiquement ici -->
+            </div>
+        </div>
+
+        <div id="dynamicFormContainer" class="mt-3" style="display: none;">
+            <p>Formulaire dynamique :</p>
+            <div id="dynamicForm">
+                <!-- Le formulaire dynamique sera ajouté ici -->
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Soumettre</button>
+    </form>
+@else
+    <p>Aucune section disponible. <a href="{{ route('sections.create') }}">Ajouter une section</a></p>
+@endif
+
+<script>
+    function fetchTypeInfos(sectionId) {
+        if (!sectionId) {
+            document.getElementById('typeInfosContainer').style.display = 'none';
+            document.getElementById('dynamicFormContainer').style.display = 'none';
+            return;
+        }
+
+        fetch(`/admin/sections/${sectionId}/type-infos`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('typeInfosContainer');
+                const checkboxesDiv = document.getElementById('typeInfosCheckboxes');
+                const formDiv = document.getElementById('dynamicForm');
+                const formContainer = document.getElementById('dynamicFormContainer');
+
+                checkboxesDiv.innerHTML = '';
+                formDiv.innerHTML = '';
+
+                if (data.attributs && data.attributs.length > 0) {
+                    data.attributs.forEach(attr => {
+                        const checkbox = document.createElement('div');
+                        checkbox.classList.add('form-check');
+                        checkbox.innerHTML = `
+                            <input class="form-check-input" type="checkbox" id="attr_${attr}" onchange="generateDynamicForm('${attr}')">
+                            <label class="form-check-label" for="attr_${attr}">${attr}</label>
+                        `;
+                        checkboxesDiv.appendChild(checkbox);
+                    });
+
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+
+                formContainer.style.display = 'none';
+            });
+    }
+
+    function generateDynamicForm(attr) {
+        const formContainer = document.getElementById('dynamicFormContainer');
+        const formDiv = document.getElementById('dynamicForm');
+
+        const isChecked = document.getElementById(`attr_${attr}`).checked;
+
+        if (isChecked) {
+            const formGroup = document.createElement('div');
+            formGroup.classList.add('mb-3');
+            formGroup.id = `formGroup_${attr}`;
+            formGroup.innerHTML = `
+                <label for="input_${attr}" class="form-label">${attr} :</label>
+                <input type="text" class="form-control" id="input_${attr}" name="inputs[${attr}]" placeholder="Entrez ${attr}">
+            `;
+            formDiv.appendChild(formGroup);
+        } else {
+            const group = document.getElementById(`formGroup_${attr}`);
+            if (group) formDiv.removeChild(group);
+        }
+
+        formContainer.style.display = formDiv.children.length > 0 ? 'block' : 'none';
+    }
+</script>
+
 @foreach ($rdvUrgents as $rdvUrgent)
-    <div class="alert alert-warning">
+    <div >
         <table class="table">
             <thead>
                 <tr>

@@ -56,11 +56,34 @@ class AdminController extends Controller
             $rdvUrgents = RendezVous::with(['user', 'visiteur'])
                 ->where('is_urgent', true)
                 ->get();
+            $sections = \App\Models\Section::all();
+            $type_infos=\App\Models\TypeInfo::all();
+            //dd($section);
         }
         // Logique pour afficher le tableau de bord de l'administrateur
-        return view('admin.dashboard',compact('rdvUrgents'));
+        return view('admin.dashboard',compact('rdvUrgents', 'sections','type_infos'));
     }
 
+    public function storeSectionData(Request $request)
+{
+    // Exemple de récupération des données du formulaire
+    $typeInfos = $request->input('type_infos', []);
+    $dynamicInputs = $request->input('dynamic_inputs', []);
+
+    // Ici, tu peux enregistrer les données dans la base selon ta logique métier
+    // Exemple : associer les infos dynamiques à une section
+
+    // $sectionId = ... (à récupérer selon ton formulaire)
+    // $section = \App\Models\Section::find($sectionId);
+    // foreach ($typeInfos as $typeInfoId) {
+    //     // Enregistrer chaque typeInfo et sa valeur dynamique
+    //     $value = $dynamicInputs[$typeInfoId] ?? null;
+    //     // ... logique d'enregistrement ...
+    // }
+
+    // Redirection avec message de succès
+    return redirect()->route('admin.dashboard')->with('success', 'Données de la section enregistrées avec succès.');
+}
 
 
 }

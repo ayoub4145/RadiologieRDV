@@ -16,7 +16,24 @@ use PragmaRX\Google2FA\Google2FA;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisiteurController;
-use App\Http\Controllers\sendSMSController;
+use App\Http\Controllers\SectionController;
+
+//Routes pour index et dash admin :
+Route:: get('/sections-create',[SectionController::class,'create'])->name('sections.create');
+// Route pour soumettre les données du formulaire de section (utilisée dans le dashboard)
+
+Route::post('/admin/sections/store', [AdminController::class, 'storeSectionData'])->name('admin.storeSectionData');
+// Route AJAX pour récupérer les infos dynamiques d'une section (utilisée dans le JS du dashboard)
+Route::get('/admin/sections/{sectionId}/type-infos', [SectionController::class, 'getTypeInfos']);
+
+
+
+
+
+
+
+
+
 
 
 Route::get('/test-notif-urgent', function () {
