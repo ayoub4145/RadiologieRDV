@@ -59,7 +59,7 @@ Route::get('/test-notif-urgent', function () {
 
 
 // Page formulaire (GET)
-Route::get('/rendez-vous-guest', [VisiteurController::class, 'index'])->name('visiteur.rendezvous.index');
+Route::get('/rendez-vous-guest-form', [VisiteurController::class, 'index'])->name('visiteur.rendezvous.index');
 
 // Soumission du formulaire (POST)
 Route::post('/rendez-vous-guest', [VisiteurController::class, 'store'])->name('visiteur.rendezvous.store');
@@ -136,7 +136,21 @@ Route::post('/admin/sections/{section}/update-field/{field}', [TypeInfoControlle
 // 🗑 Supprimer un champ (remet sa valeur à null)
 // Route::post('/admin/sections/{section}/delete-field/{field}', [TypeInfoController::class, 'deleteField'])->name('field.delete');
 
+Route::get('/add-admin-form',[AdminController::class,'show_add_admin_form'])->name('add_admin_form');
+Route::post('/add-admin',[AdminController::class,'add_other_admin'])->name('add_admin');
+
+    Route::get('/admin/visiteurs', [VisiteurController::class, 'index'])->name('admin.visiteurs.index');
+    Route::get('/admin/visiteurs/{id}', [VisiteurController::class, 'show'])->name('admin.visiteurs.show');
+    Route::delete('/admin/visiteurs/{id}', [VisiteurController::class, 'destroy'])->name('admin.visiteurs.destroy');
+
+    // Routes pour gérer les sections et type_infos
+    Route::resource('sections', SectionController::class);
 });
+
+
+
+
+
 
 //Routes pour medecin
 Route::middleware(['auth', 'role:medecin'])->group(function () {

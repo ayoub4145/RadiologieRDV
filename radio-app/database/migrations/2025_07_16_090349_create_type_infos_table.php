@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('type_infos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('section_id')->constrained('sections')->onDelete('cascade');
-            $table->text('titre')->nullable();
-            $table->text('contenu')->nullable();
-            $table->string('image')->nullable(); // image optionnelle
+            $table->text('titre');
+            $table->text('contenu');
+            $table->string('image'); // image optionnelle
             $table->timestamps();
         });
     }

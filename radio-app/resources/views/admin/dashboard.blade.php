@@ -7,11 +7,21 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <style>
+    .add-admin-btn-img {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+}
+    </style>
 </head>
 <body>
+<a href="{{route('add_admin_form')}}" class="btn btn-primary add-admin-btn">
+    <img src="https://cdn-icons-png.flaticon.com/512/921/921359.png" alt="Add_admin_img" class="add-admin-btn-img">
+</a>
 <div class="container mt-4">
-    <h1>Bonjour admin</h1>
+    <h1>Bonjour admin : {{ session('new_admin')->name ?? Auth::user()->name }}</h1>
     <p>Bienvenue sur le tableau de bord.</p>
   <div class="container mt-5">
     <div class="input-container mb-3">
@@ -313,7 +323,13 @@ function fetchTypeInfos(sectionId) {
                 let field = '';
 
                 switch (attr) {
-                    case 'description':
+                        case 'titre':
+                        field = `
+                            <div class="mb-3">
+                                <label for="input_${attr}" class="form-label">${attr} :</label>
+                                <input type="text" class="form-control" name="inputs[${attr}]" id="input_${attr}" placeholder="Entrez ${attr}" required>
+                            </div>`;
+                        break;
                     case 'contenu':
                         field = `
                             <div class="mb-3">

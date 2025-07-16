@@ -117,7 +117,6 @@
     @if(isset($services) && count($services) > 0)
         <form method="POST" action="{{ route('visiteur.rendezvous.store') }}">
             @csrf
-
             <!-- Nom -->
             <div class="mb-4">
                 <label for="nom_visiteur" class="block font-medium text-sm">Nom complet</label>
@@ -368,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td class="border border-gray-300 px-2 py-1">${r.time}</td>
                             <td class="border border-gray-300 px-2 py-1">${r.service_name ?? '—'}</td>
                             <td class="border border-gray-300 px-2 py-1 text-center">
-                                <button onclick="annulerRDV(${r.id})"
+                                <button onclick="annulerRDV(${r.id})" style="color:orange;"
                                         class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                                     Annuler
                                 </button>

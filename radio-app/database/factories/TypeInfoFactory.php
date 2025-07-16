@@ -24,7 +24,7 @@ protected $model = \App\Models\TypeInfo::class;
             'section_id' => Section::factory(), // Crée une section associée si non précisé
             'titre' => $this->faker->sentence(3),
             'contenu' => $this->faker->paragraph(),
-            'image' => $this->faker->optional()->imageUrl(640, 480, 'business'),
+            'image' => $this->faker->imageUrl(640, 480, 'business'),
         ];
     }
 }

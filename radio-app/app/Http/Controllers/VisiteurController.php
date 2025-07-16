@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RendezVous;
 use App\Models\Visiteur;
+use Illuminate\Support\Facades\Log;
 
 class VisiteurController extends Controller
 {
@@ -66,6 +67,13 @@ class VisiteurController extends Controller
      */
 public function store(Request $request)
 {
+    Log::info('➡️ Méthode store() appelée');
+
+    Log::info('🛠 Données reçues dans la requête', $request->all());
+    // dd('store called');
+$request->merge([
+    'is_urgent' => $request->has('is_urgent')
+]);
     // Validation des données
     $validatedData = $request->validate([
         'nom_visiteur' => 'required|string|max:255',
@@ -75,7 +83,11 @@ public function store(Request $request)
         'date_heure' => 'required|date|after:now',
         'commentaire' => 'nullable|string',
         'is_urgent' => 'nullable|boolean',
+        // 'creneau_id' => 'nullable|integer', // si tu veux stocker le créneau choisi
+
     ]);
+    Log::info('✅ Données validées', $validatedData);
+
 
     // Création ou récupération du visiteur via email
     $visiteur = Visiteur::firstOrCreate(
@@ -85,6 +97,7 @@ public function store(Request $request)
             'telephone' => $validatedData['telephone_visiteur'] ?? null,
         ]
     );
+    Log::info('👤 Visiteur trouvé ou créé', ['visiteur_id' => $visiteur->id]);
 
     // Création du rendez-vous
     $rdv = new RendezVous();
@@ -94,8 +107,13 @@ public function store(Request $request)
     $rdv->date_heure = $validatedData['date_heure'];
     $rdv->commentaire = $validatedData['commentaire'] ?? null;
     $rdv->is_urgent = $validatedData['is_urgent'] ?? false;
+    // if (isset($validatedData['creneau_id'])) {
+    //     $rdv->creneau_id = $validatedData['creneau_id'];
+    // }
     $rdv->save();
+        Log::info('📅 Rendez-vous enregistré', ['rdv_id' => $rdv->id]);
 
+    // dd($rdv);
     return response()->json([
         'message' => 'Rendez-vous enregistré avec succès.',
         'rendezVous' => $rdv,

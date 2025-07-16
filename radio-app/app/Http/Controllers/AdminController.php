@@ -129,4 +129,32 @@ public function searchSection($name)
     ]);
 }
 
+public function show_add_admin_form(){
+    return view('admin.add_admin');
+}
+
+public function add_other_admin(Request $request)
+{
+    $request->validate([
+        'admin_name' => 'required|string|max:255',
+        'admin_email' => 'required|email|unique:users,email',
+        'admin_phone'=> 'required|string|max:15',
+        'admin_password' => 'required|string|min:8',
+    ]);
+
+    // Création de l'utilisateur admin
+    $nv_admin = \App\Models\User::create([
+        'name' => $request->admin_name,
+        'email' => $request->admin_email,
+        'phone_number'=>$request->admin_phone,
+        'role' => 'admin', // Assurez-vous que le rôle est défini sur admin
+        'password' => bcrypt($request->admin_password),
+    ]);
+    // dd($nv_admin);
+    return redirect()->route('admin.dashboard')
+                        ->with('success', 'Nouvel administrateur ajouté avec succès !')
+                        ->with('new_admin', $nv_admin);;
+
+}
+
 }
