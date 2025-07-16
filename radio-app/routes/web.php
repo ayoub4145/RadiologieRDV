@@ -18,14 +18,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisiteurController;
 use App\Http\Controllers\SectionController;
 
-//Routes pour index et dash admin :
-Route:: get('/sections-create',[SectionController::class,'create'])->name('sections.create');
-// Route pour soumettre les données du formulaire de section (utilisée dans le dashboard)
-
-Route::post('/admin/sections/store', [AdminController::class, 'storeSectionData'])->name('admin.storeSectionData');
-// Route AJAX pour récupérer les infos dynamiques d'une section (utilisée dans le JS du dashboard)
-Route::get('/admin/sections/{sectionId}/type-infos', [SectionController::class, 'getTypeInfos']);
-
 
 
 
@@ -124,6 +116,16 @@ Route::delete('/annuler-rendezvous/{id}', function ($id) {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     // Autres routes d'administration ici
+    //Routes pour index et dash admin :
+    Route:: get('/show-sections-form',[SectionController::class,'create'])->name('sections.create');
+// Route pour soumettre les données du formulaire de section (utilisée dans le dashboard)
+
+    Route::post('/admin/sections/store', [AdminController::class, 'storeSectionData'])->name('admin.storeSectionData');
+    // Route AJAX pour récupérer les infos dynamiques d'une section (utilisée dans le JS du dashboard)
+    Route::get('/admin/sections/{sectionId}/type-infos', [SectionController::class, 'getTypeInfos']);
+    Route::post('/admin/create-section',[SectionController::class,'store'])->name('sections.store');
+
+
 });
 
 //Routes pour medecin

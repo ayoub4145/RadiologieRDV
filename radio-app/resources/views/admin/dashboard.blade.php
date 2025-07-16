@@ -2,19 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
     <title>Admin dash</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+    @endif
 
+<div class="container mt-4">
+    <h1>Bonjour admin</h1>
 
-<H1>Bonjour admin</H1>
-<p>Bienvenue sur le tableau de bord de l'administrateur.</p>
-<p>Vous pouvez gérer les rendez-vous, les utilisateurs et d'autres paramètres du système.</p>
-@if(isset($sections) && $sections->isNotEmpty())
+    <p>Bienvenue sur le tableau de bord.</p>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+    @endif
+
+    @if($sections->isNotEmpty())
     <form action="{{ route('admin.storeSectionData') }}" method="POST">
         @csrf
         <label for="section">Sélectionner une section :</label>
@@ -26,24 +38,54 @@
         </select>
 
         <div id="typeInfosContainer" class="mt-3" style="display: none;">
-            <p>Veuillez cocher les informations associées :</p>
-            <div id="typeInfosCheckboxes">
-                <!-- Les cases à cocher seront ajoutées dynamiquement ici -->
-            </div>
+            <p>Champs à remplir :</p>
+            <div id="typeInfosCheckboxes"></div>
         </div>
 
         <div id="dynamicFormContainer" class="mt-3" style="display: none;">
-            <p>Formulaire dynamique :</p>
-            <div id="dynamicForm">
-                <!-- Le formulaire dynamique sera ajouté ici -->
-            </div>
+            <p>Formulaire :</p>
+            <div id="dynamicForm"></div>
         </div>
 
         <button type="submit" class="btn btn-primary mt-3">Soumettre</button>
     </form>
-@else
-    <p>Aucune section disponible. <a href="{{ route('sections.create') }}">Ajouter une section</a></p>
-@endif
+    @else
+        <p>Aucune section disponible.</p><a href="{{ route('sections.create') }}">Ajouter une section</a>
+
+    @endif
+
+    <hr>
+    <h4>Rendez-vous urgents :</h4>
+    @foreach ($rdvUrgents as $rdv)
+    <table class="table table-bordered">
+        <tr>
+            <th>Nom</th>
+            <th>Type</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Date</th>
+            <th>Commentaire</th>
+        </tr>
+        <tr>
+            <td>
+                {{ $rdv->user->name ?? $rdv->visiteur->name ?? '-' }}
+            </td>
+            <td>
+                {{ $rdv->user ? 'Patient' : ($rdv->visiteur ? 'Visiteur' : '-') }}
+            </td>
+            <td>
+                {{ $rdv->user->email ?? $rdv->visiteur->email ?? '-' }}
+            </td>
+            <td>
+                {{ $rdv->user->phone_number ?? $rdv->visiteur->telephone ?? '-' }}
+            </td>
+            <td>{{ $rdv->date_heure }}</td>
+            <td>{{ $rdv->commentaire }}</td>
+        </tr>
+    </table>
+    @endforeach
+</div>
+
 
 <script>
     function fetchTypeInfos(sectionId) {
@@ -54,7 +96,7 @@
         }
 
         fetch(`/admin/sections/${sectionId}/type-infos`)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('typeInfosContainer');
                 const checkboxesDiv = document.getElementById('typeInfosCheckboxes');
@@ -74,7 +116,6 @@
                         `;
                         checkboxesDiv.appendChild(checkbox);
                     });
-
                     container.style.display = 'block';
                 } else {
                     container.style.display = 'none';
@@ -87,87 +128,25 @@
     function generateDynamicForm(attr) {
         const formContainer = document.getElementById('dynamicFormContainer');
         const formDiv = document.getElementById('dynamicForm');
-
         const isChecked = document.getElementById(`attr_${attr}`).checked;
 
         if (isChecked) {
-            const formGroup = document.createElement('div');
-            formGroup.classList.add('mb-3');
-            formGroup.id = `formGroup_${attr}`;
-            formGroup.innerHTML = `
+            const div = document.createElement('div');
+            div.classList.add('mb-3');
+            div.id = `formGroup_${attr}`;
+            div.innerHTML = `
                 <label for="input_${attr}" class="form-label">${attr} :</label>
-                <input type="text" class="form-control" id="input_${attr}" name="inputs[${attr}]" placeholder="Entrez ${attr}">
+                <input type="text" class="form-control" name="inputs[${attr}]" id="input_${attr}" placeholder="Entrez ${attr}">
             `;
-            formDiv.appendChild(formGroup);
+            formDiv.appendChild(div);
         } else {
-            const group = document.getElementById(`formGroup_${attr}`);
-            if (group) formDiv.removeChild(group);
+            const existing = document.getElementById(`formGroup_${attr}`);
+            if (existing) formDiv.removeChild(existing);
         }
 
         formContainer.style.display = formDiv.children.length > 0 ? 'block' : 'none';
     }
 </script>
-
-@foreach ($rdvUrgents as $rdvUrgent)
-    <div >
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Nom complet du patient</th>
-                    <th>Patient ou Visiteur</th>
-                    <th>Email</th>
-                    <th>Numéro de téléphone</th>
-                    <th>Date et heure du rendez-vous</th>
-                    <th>Commentaire</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        @if($rdvUrgent->user)
-                            {{ $rdvUrgent->user->name }}
-                        @elseif($rdvUrgent->visiteur)
-                            {{ $rdvUrgent->visiteur->name }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>
-                        @if($rdvUrgent->user)
-                            Patient
-                        @elseif($rdvUrgent->visiteur)
-                            Visiteur
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>
-                        @if($rdvUrgent->user)
-                            {{ $rdvUrgent->user->email }}
-                        @elseif($rdvUrgent->visiteur)
-                            {{ $rdvUrgent->visiteur->email }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>
-                        @if($rdvUrgent->user)
-                            {{ $rdvUrgent->user->phone_number }}
-                        @elseif($rdvUrgent->visiteur)
-                            {{ $rdvUrgent->visiteur->telephone }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>{{ $rdvUrgent->date_heure }}</td>
-                    <td>
-                       {{$rdvUrgent->commentaire}}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-@endforeach
 
 </body>
 </html>

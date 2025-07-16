@@ -12,6 +12,22 @@ class SectionController extends Controller
     {
         return view('sections.create_section');
     }
+    public function store(Request $request)
+    {
+        // Validation des données du formulaire
+        $request->validate([
+            'section_name' => 'required|string|max:255|unique:sections,name',
+            'section_description' => 'nullable|string|max:1000',
+        ]);
+
+        // Création de la section
+        $section = Section::create([
+            'name' => $request->section_name,
+            'description' => $request->section_description,
+        ]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Section créée avec succès !');
+    }
 public function getTypeInfos($sectionId)
 {
     // Tu peux ajouter une vérification de section si besoin
