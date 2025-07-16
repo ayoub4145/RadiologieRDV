@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\RendezVous;
 use App\Models\Visiteur;
 use Illuminate\Support\Facades\Log;
+use App\Events\RendezVousCreated;
 
 class VisiteurController extends Controller
 {
@@ -112,6 +113,7 @@ $request->merge([
     // }
     $rdv->save();
         Log::info('📅 Rendez-vous enregistré', ['rdv_id' => $rdv->id]);
+event(new RendezVousCreated($rdv));
 
     // dd($rdv);
     return response()->json([

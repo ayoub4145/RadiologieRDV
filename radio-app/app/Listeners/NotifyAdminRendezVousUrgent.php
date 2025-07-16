@@ -50,7 +50,7 @@ class NotifyAdminRendezVousUrgent
                 }
 
                 public function routeNotificationForVonage() {
-                    Log::info('Route SMS appelée: +212687520612');
+                    Log::info('Route SMS appelée: +212680475084');
                     return '+212680475084'; // numéro SMS admin en format international
                 }
             };
