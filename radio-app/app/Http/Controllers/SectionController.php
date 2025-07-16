@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Section;
 use Illuminate\Support\Facades\Schema;
+use App\Models\TypeInfo;
 
 class SectionController extends Controller
 {
@@ -28,20 +29,49 @@ class SectionController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'Section créée avec succès !');
     }
+
 public function getTypeInfos($sectionId)
 {
-    // Tu peux ajouter une vérification de section si besoin
     $section = \App\Models\Section::findOrFail($sectionId);
 
-    // Liste des colonnes que tu veux rendre disponibles comme "champs dynamiques"
-    $columns = Schema::getColumnListing('type_infos');
+    // On regarde le premier enregistrement existant pour cette section
+    $typeInfo = \App\Models\TypeInfo::where('section_id', $sectionId)->first();
 
-    // Supprimer les colonnes non utiles (id, section_id, created_at...)
-    $excluded = ['id', 'section_id', 'created_at', 'updated_at', 'is_active', 'ordre'];
-    $filteredColumns = array_diff($columns, $excluded);
+    // Si aucun enregistrement, on retourne tous les champs sauf les colonnes système
+    if (!$typeInfo) {
+        $columns = Schema::getColumnListing('type_infos');
+        $excluded = ['id', 'section_id', 'created_at', 'updated_at','numero','email'];
+        $attributs = array_values(array_diff($columns, $excluded));
+    } else {
+        // Sinon, on retourne uniquement les colonnes non nulles
+        $columns = Schema::getColumnListing('type_infos');
+        $excluded = ['id', 'section_id', 'created_at', 'updated_at', 'is_active'];
+        $attributs = [];
+
+        foreach ($columns as $column) {
+            if (!in_array($column, $excluded) && !is_null($typeInfo->$column)) {
+                $attributs[] = $column;
+            }
+        }
+    }
 
     return response()->json([
-        'attributs' => array_values($filteredColumns)
+        'section' => $section->name,
+        'attributs' => $attributs,
     ]);
 }
+    public function destroy($sectionId)
+    {
+        $section = Section::findOrFail($sectionId);
+
+        $typeInfo = TypeInfo::where('section_id', $sectionId)->first();
+        if ($typeInfo) {
+            $typeInfo->delete();
+        }
+
+        $section->delete();
+
+        return response()->json(['message' => 'Section supprimée avec succès.']);
+    }
+
 }

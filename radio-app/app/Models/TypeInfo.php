@@ -11,7 +11,7 @@ class TypeInfo extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id', 'titre', 'contenu', 'image', 'numero', 'email', 'lien', 'ordre', 'is_active'
+        'section_id', 'titre', 'contenu', 'image',
     ];
     public function section()
     {

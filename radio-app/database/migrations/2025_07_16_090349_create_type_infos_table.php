@@ -17,11 +17,6 @@ return new class extends Migration
             $table->text('titre')->nullable();
             $table->text('contenu')->nullable();
             $table->string('image')->nullable(); // image optionnelle
-            $table->string('numero', 20)->nullable(); // numéro de téléphone
-            $table->string('email')->nullable(); // email
-            $table->string('lien')->nullable(); // lien externe
-            $table->integer('ordre')->nullable(); // pour ordonner les éléments
-            $table->boolean('is_active')->default(true); // actif ou non
             $table->timestamps();
         });
     }

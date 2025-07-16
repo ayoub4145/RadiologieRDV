@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
                 ServiceAvailabilitySeeder::class,
     ]);
             // Création de 4 sections fixes (Blog, Coordonnées, Actualités, Événements)
-        $sections = ['Blog', 'Coordonnées', 'Actualités', 'Articles','FAQ','temoignages','A propos','Services','Équipe'];
+        $sections = ['Blog', 'Articles',];
 
         foreach ($sections as $nom) {
             $section = Section::create([
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             ]);
 
             // Crée aléatoirement 5 infos par section
-            TypeInfo::factory()->count(5)->create([
+            TypeInfo::factory()->count(2)->create([
                 'section_id' => $section->id,
             ]);
         }

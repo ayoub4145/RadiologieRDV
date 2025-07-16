@@ -17,7 +17,7 @@ use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisiteurController;
 use App\Http\Controllers\SectionController;
-
+use App\Http\Controllers\TypeInfoController;
 
 
 
@@ -124,7 +124,17 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Route AJAX pour récupérer les infos dynamiques d'une section (utilisée dans le JS du dashboard)
     Route::get('/admin/sections/{sectionId}/type-infos', [SectionController::class, 'getTypeInfos']);
     Route::post('/admin/create-section',[SectionController::class,'store'])->name('sections.store');
+    Route::get('/admin/search-section/{name}', [TypeInfoController::class, 'searchSection']);
 
+    // 🔧 Modifier un champ (affiche le formulaire)
+Route::get('/admin/sections/{section}/fields/{field}/edit', [TypeInfoController::class, 'editField'])->name('field.edit');
+
+// 💾 Enregistrer la modification
+Route::post('/admin/sections/{section}/update-field/{field}', [TypeInfoController::class, 'updateField'])->name('field.update');
+    Route::delete('/admin/sections/{section}', [SectionController::class, 'destroy'])
+        ->name('sections.destroy');
+// 🗑 Supprimer un champ (remet sa valeur à null)
+// Route::post('/admin/sections/{section}/delete-field/{field}', [TypeInfoController::class, 'deleteField'])->name('field.delete');
 
 });
 

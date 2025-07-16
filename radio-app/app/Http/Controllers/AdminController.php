@@ -65,28 +65,68 @@ class AdminController extends Controller
         return view('admin.dashboard',compact('rdvUrgents', 'sections','type_infos'));
     }
     public function storeSectionData(Request $request)
-    {
+{
+    $validated = $request->validate([
+        'section' => 'required|exists:sections,id',
+        'inputs' => 'array',
+        'inputs.titre' => 'nullable|string|max:255',
+        'inputs.description' => 'nullable|string|max:1000',
+        'inputs.contenu' => 'nullable|string|max:1000',
+        'inputs.email' => 'nullable|email',
+        'inputs.numero' => 'nullable|string|max:20',
+        'inputs.lien' => 'nullable|url',
+        // 'inputs.ordre' => 'nullable|integer',
+        'inputs.image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
 
-    $sectionId = $request->input('section');
-    $inputs = $request->input('inputs', []);
+    $data = $validated['inputs'] ?? [];
+    $data['section_id'] = $request->input('section');
 
-    // Créer une nouvelle entrée TypeInfo liée à la section
-    $typeInfo = new TypeInfo();
-    $typeInfo->section_id = $sectionId;
+    // gestion image
+    if ($request->hasFile('inputs.image')) {
+        $path = $request->file('inputs.image')->store('images', 'public');
+        $data['image'] = $path;
+    }
 
-    // Affecter dynamiquement les champs si autorisés
-    foreach ($inputs as $key => $value) {
-        // Vérifie que la colonne existe dans la table type_infos
-        if (Schema::hasColumn('type_infos', $key)) {
-            $typeInfo->$key = $value;
+    TypeInfo::create($data);
+
+    return redirect()->back()->with('success', 'Données enregistrées avec succès.');
+}
+
+
+
+public function searchSection($name)
+{
+    $section = \App\Models\Section::whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
+
+    if (!$section) {
+        return response()->json([
+            'section' => $name,
+            'attributs' => []
+        ]);
+    }
+
+    // Même logique que getTypeInfos
+    $typeInfo = \App\Models\TypeInfo::where('section_id', $section->id)->first();
+    $columns = Schema::getColumnListing('type_infos');
+    $excluded = ['id', 'section_id', 'created_at', 'updated_at'];
+
+    $attributs = [];
+
+    if ($typeInfo) {
+        foreach ($columns as $column) {
+            if (!in_array($column, $excluded) && !is_null($typeInfo->$column)) {
+                $attributs[] = $column;
+            }
         }
+    } else {
+        $attributs = array_values(array_diff($columns, $excluded));
     }
 
-    $typeInfo->save();
-
-    return redirect()->route('admin.dashboard')->with('success', 'Données enregistrées avec succès.');
-
-    }
-
+    return response()->json([
+        'section' => $section->name,
+        'attributs' => $attributs,
+    ]);
+}
 
 }
